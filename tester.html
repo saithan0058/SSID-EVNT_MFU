@@ -183,7 +183,7 @@
                                     
                                         <center><select id="location1">
                                                 <option value="" selected disabled>โปรดเลือกสถานที่</option>
-                                                <option value="ap1">AP1</option>
+                                                <option value="AS">AS</option>
                                                 <option value="ap2">AP2</option>
                                             </select>
                                             <input type="button" data-bs-dismiss="modal" value="ยืนยัน"
@@ -227,7 +227,7 @@
                                             </center>
                                         <center><select id="location">
                                                 <option value="" selected disabled>โปรดเลือกสถานที่</option>
-                                                <option value="ap1">AP1</option>
+                                                <option value="AS">AS</option>
                                                 <option value="ap2">AP2</option>
                                             </select>
                                             <input type="button" data-bs-dismiss="modal" value="ยืนยัน"
@@ -256,27 +256,25 @@
 
             <!-- Modal body -->
             <div class="modal-body">
-                <form>
+                <form id="ssidForm2" enctype="multipart/form-data">
                     <div class="card-body pt-0" id="evnt">
                         <center><input type="text" id="ssid2" placeholder="โปรดระบุชื่่อ SSID ">
                             <center><input type="text" id="event2" placeholder="โปรดระบุชื่อกิจกรรม">
-                                
-                                    <center><select id="location2">
-                                            <option value="" selected disabled>โปรดเลือกสถานที่</option>
-                                            <option value="ap1">AP1</option>
-                                            <option value="ap2">AP2</option>
-                                        </select>
-                                        <input type="button" data-bs-dismiss="modal" value="ยืนยัน"
-                                            onclick="configureSSID2()" id="butsub">
+                                <center><select id="location2">
+                                    <option value="" selected disabled>โปรดเลือกสถานที่</option>
+                                    <option value="AS">AS</option>
+                                    <option value="ap2">AP2</option>
+                                </select>
+                                <center><input type="file" id="csvFile" name="csvFile" accept=".csv">
+                                <input type="button" data-bs-dismiss="modal" value="ยืนยัน"
+                                    onclick="configureSSID2()" id="butsub">
                     </div>
                 </form>
             </div>
-
-
-
         </div>
     </div>
 </div>
+
 
 
 
@@ -287,3 +285,30 @@
 
 
 </html>
+
+<script>
+    function configureSSID2() {
+    var ssid2 = document.getElementById("ssid2").value;
+    var event2 = document.getElementById("event2").value;
+    var location2 = document.getElementById("location2").value;
+    var csvFile = document.getElementById("csvFile").files[0];
+
+    var formData = new FormData();
+    formData.append("ssid2", ssid2);
+    formData.append("event2", event2);
+    formData.append("location2", location2);
+    formData.append("csvFile", csvFile);
+
+    // Make an AJAX request to the server
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            alert("SSID configuration successful!");
+            window.location.href = "/history";
+        }
+    };
+    xhttp.open("POST", "/configure_ssid2", true);
+    xhttp.send(formData);
+}
+
+</script>

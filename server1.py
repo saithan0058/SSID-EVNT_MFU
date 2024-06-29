@@ -5,16 +5,15 @@ import re
 import random
 from pymongo import MongoClient
 import os
-from ldap3 import Server, Connection, ALL, MODIFY_REPLACE
 
 current_time = datetime.datetime.now()
 
-# ปรับเปลี่ยนเป็นพุทธศักราช
+# ปรับเปลี่ยนเป็นพุธศักราช
 buddhist_year = current_time.year + 543
 
 # สร้างวัตถุ datetime ใหม่ที่มีการเปลี่ยนแปลงแล้ว
 buddhist_time = current_time.replace(year=buddhist_year)
-# แสดงวันที่แบบพุทธศักราช
+# แสดงวันที่แบบพุธศักราช
 formatted_time = buddhist_time.strftime("%Y-%m-%d %H:%M:%S")
 
 app = Flask(__name__)
@@ -199,20 +198,6 @@ def configure_ssid():
 
     return redirect(url_for('history'))
 
-# เชื่อมต่อกับ AD
-def connect_to_ad():
-    server = Server('ldap://SSIDtest.com', get_info=ALL)
-    conn = Connection(server, 'CN=Administrator,CN=Users,DC=SSIDtest,DC=com', '123456789Xx', auto_bind=True)
-    return conn
-
-# เพิ่มผู้ใช้ใน AD
-def add_user_to_ad(conn, name, id_card_number, phone_number):
-    user_dn = f'CN={name},CN=Users,DC=SSIDtest,DC=com'
-    conn.add(user_dn, 'user', {'sn': name, 'uid': id_card_number, 'telephoneNumber': phone_number})
-    conn.modify(user_dn, {'userAccountControl': [(MODIFY_REPLACE, [512])]})
-    conn.extend.microsoft.modify_password(user_dn, 'DefaultPassword123')
-    conn.modify(user_dn, {'pwdLastSet': [(MODIFY_REPLACE, [-1])]})
-
 @app.route('/configure_ssid2', methods=['POST']) #แบบรายบุคคล
 def configure_ssid2():
     ssid2 = request.form['ssid2']
@@ -256,16 +241,6 @@ def configure_ssid2():
         print(f'Inserted users: {users}')
     else:
         print('No users found in CSV file.')
-
-    # Connect to the Active Directory
-    conn = connect_to_ad()
-
-    # Add users to Active Directory
-    for user in users:
-        add_user_to_ad(conn, user['name'], user['id_card_number'], user['phone_number'])
-    
-    # Disconnect from AD
-    conn.unbind()
 
     device = {
         'device_type': 'cisco_ios',
@@ -375,6 +350,13 @@ def post(ssid, event, location):
 
     # Return the id of the inserted document
     return result.inserted_id
+
+
+
+
+
+
+
 
 @app.route('/delete_ssid/<ssid_id>', methods=['DELETE'])
 def delete_ssid(ssid_id):
