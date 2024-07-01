@@ -145,6 +145,7 @@
         </div>
     </div>
     
+
     <script>
         function configureSSID1() {
             var ssid1 = document.getElementById("ssid1").value;
@@ -224,9 +225,8 @@
                             userList += `
                                 <li class="list-group-item d-flex justify-content-between align-items-start">
                                     <div class="ms-2 me-auto">
-                                        <div class="fw-bold">Name: <span contenteditable="true" onblur="updateUser(${i}, 'name', this.innerText)">${columns[0]}</span></div>
-                                        ID Card: <span contenteditable="true" onblur="updateUser(${i}, 'id_card', this.innerText)">${columns[1]}</span>, 
-                                        Phone: <span contenteditable="true" onblur="updateUser(${i}, 'phone', this.innerText)">${columns[2]}</span>
+                                        <div class="fw-bold">Name: ${columns[0]}</div>
+                                        ID Card: ${columns[1]}, Phone: ${columns[2]}
                                     </div>
                                     <span>
                                         <button class="btn btn-secondary btn-sm me-2" onclick="editUser(${i})">Edit</button>
@@ -244,20 +244,6 @@
 
         function editUser(index) {
             // Add functionality to edit user
-        }
-
-        function updateUser(index, field, value) {
-            const userList = document.getElementById('userList').getElementsByTagName('ul')[0];
-            const userItem = userList.childNodes[index];
-            const userFields = userItem.getElementsByTagName('span');
-            
-            if (field === 'name') {
-                userFields[0].innerText = value;
-            } else if (field === 'id_card') {
-                userFields[1].innerText = value;
-            } else if (field === 'phone') {
-                userFields[2].innerText = value;
-            }
         }
 
         function deleteUser(index) {
