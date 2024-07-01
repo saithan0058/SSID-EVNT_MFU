@@ -7,7 +7,7 @@ server = Server('ldaps://10.1.55.210:636')  # Replace with your Active Directory
 con = Connection(server, user='test\\Administrator', password='12345678Xx', auto_bind=True)
 
 # Define user DN to delete
-user_dn = 'CN=jame,OU=Guest,DC=test,DC=local'  # Replace with the user's DN
+user_dn = 'CN=john,OU=Guest,DC=test,DC=local'  # Replace with the user's DN
 
 # Delete the user
 con.delete(user_dn)
