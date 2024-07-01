@@ -8,12 +8,12 @@ import os
 
 current_time = datetime.datetime.now()
 
-# ปรับเปลี่ยนเป็นพุธศักราช
+# ปรับเปลี่ยนเป็นพุทธศักราช
 buddhist_year = current_time.year + 543
 
 # สร้างวัตถุ datetime ใหม่ที่มีการเปลี่ยนแปลงแล้ว
 buddhist_time = current_time.replace(year=buddhist_year)
-# แสดงวันที่แบบพุธศักราช
+# แสดงวันที่แบบพุทธศักราช
 formatted_time = buddhist_time.strftime("%Y-%m-%d %H:%M:%S")
 
 app = Flask(__name__)
@@ -75,8 +75,6 @@ def configure_ssid1():
         print(wlan_id)
     
     existing_array = [None] * 15
-
-    # Your code to retrieve WLAN IDs and store them in wlan_ids list
 
     # Add the values from wlan_ids to the existing array
     for i in range(len(wlan_ids)):
@@ -154,8 +152,6 @@ def configure_ssid():
         print(wlan_id)
     
     existing_array = [None] * 15
-
-    # Your code to retrieve WLAN IDs and store them in wlan_ids list
 
     # Add the values from wlan_ids to the existing array
     for i in range(len(wlan_ids)):
@@ -350,13 +346,6 @@ def post(ssid, event, location):
 
     # Return the id of the inserted document
     return result.inserted_id
-
-
-
-
-
-
-
 
 @app.route('/delete_ssid/<ssid_id>', methods=['DELETE'])
 def delete_ssid(ssid_id):
