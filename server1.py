@@ -1,13 +1,10 @@
-from flask import Flask, request, send_from_directory, render_template, redirect, url_for
+from flask import Flask, request, send_from_directory, redirect, url_for
 import datetime
 from netmiko import ConnectHandler
 import re
 import random
 from pymongo import MongoClient
 import os
-
-
-
 
 current_time = datetime.datetime.now()
 
@@ -23,8 +20,13 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def index():
-    with open('tester.html', 'r', encoding='utf-8') as file:
-        return file.read()
+    return send_from_directory('.', 'tester.html')
+
+@app.route('/testtest.html', methods=['GET'])
+def testtest():
+    return send_from_directory('.', 'testtest.html')
+
+
 
 # Connect to MongoDB
 client = MongoClient("mongodb://localhost:27017")
