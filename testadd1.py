@@ -8,6 +8,7 @@ username = 'john.smith'
 useremail = 'john@smith.com'
 userpswd = '12345678Xx'
 userdn = 'CN=john,OU=Guest,DC=test,DC=local'
+group_dn = 'CN=WIFI USERS,CN=Users,DC=test,DC=local'
 
 # connect - specifying port 636 is only for reference as it's inferred
 s = Server('ldaps://10.1.55.210:636', connect_timeout=5, use_ssl=True, get_info=ALL)
@@ -37,6 +38,12 @@ c.modify(userdn, {'userAccountControl': [('MODIFY_REPLACE', 512)]})
 
 # ena user
 c.modify(userdn, {'userAccountControl': [('MODIFY_REPLACE', 64)]})
+
+# set dail-in network access permission to allow access
+c.modify(userdn, {'msNPAllowDialin': [('MODIFY_REPLACE', [True])]})
+
+# Add the user to the group
+c.modify(group_dn, {'member': [('MODIFY_ADD', [userdn])]})
 
 # Check result
 if c.result['result'] == 0:
