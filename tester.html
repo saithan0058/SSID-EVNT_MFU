@@ -145,7 +145,6 @@
         </div>
     </div>
     
-
     <script>
         function configureSSID1() {
             var ssid1 = document.getElementById("ssid1").value;
@@ -204,7 +203,7 @@
             xhttp.onreadystatechange = function () {
                 if (this.readyState == 4 && this.status == 200) {
                     alert("SSID configuration successful!");
-                    window.location.href = "/history";
+                    //window.location.href = "/history";
                 }
             };
             xhttp.open("POST", "/configure_ssid2", true);
@@ -225,12 +224,13 @@
                             userList += `
                                 <li class="list-group-item d-flex justify-content-between align-items-start">
                                     <div class="ms-2 me-auto">
-                                        <div class="fw-bold">Name: ${columns[0]}</div>
-                                        ID Card: ${columns[1]}, Phone: ${columns[2]}
+                                        <div class="fw-bold">Name: <span id="name-${i}">${columns[0]}</span></div>
+                                        ID Card: <span id="id_card-${i}">${columns[1]}</span>, 
+                                        Phone: <span id="phone-${i}">${columns[2]}</span>
                                     </div>
                                     <span>
-                                        <button class="btn btn-secondary btn-sm me-2" onclick="editUser(${i})">Edit</button>
-                                        <button class="btn btn-danger btn-sm" onclick="deleteUser(${i})">Delete</button>
+                                        <button class="btn btn-secondary btn-sm me-2" onclick="editUser(${i})">แก้ไข</button>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteUser(${i})">ลบ</button>
                                     </span>
                                 </li>`;
                         }
@@ -243,7 +243,53 @@
         });
 
         function editUser(index) {
-            // Add functionality to edit user
+            const nameSpan = document.getElementById(`name-${index}`);
+            const idCardSpan = document.getElementById(`id_card-${index}`);
+            const phoneSpan = document.getElementById(`phone-${index}`);
+
+            nameSpan.contentEditable = true;
+            idCardSpan.contentEditable = true;
+            phoneSpan.contentEditable = true;
+
+            nameSpan.focus();
+
+            // Add a class to indicate edit mode
+            nameSpan.classList.add("editable");
+            idCardSpan.classList.add("editable");
+            phoneSpan.classList.add("editable");
+
+            // Change the Edit button to Save button
+            const editButton = nameSpan.parentElement.nextElementSibling.querySelector('.btn-secondary');
+            editButton.textContent = 'Save';
+            editButton.classList.remove('btn-secondary');
+            editButton.classList.add('btn-success');
+            editButton.onclick = function() {
+                saveUser(index);
+            };
+        }
+
+        function saveUser(index) {
+            const nameSpan = document.getElementById(`name-${index}`);
+            const idCardSpan = document.getElementById(`id_card-${index}`);
+            const phoneSpan = document.getElementById(`phone-${index}`);
+
+            nameSpan.contentEditable = false;
+            idCardSpan.contentEditable = false;
+            phoneSpan.contentEditable = false;
+
+            // Remove the edit mode class
+            nameSpan.classList.remove("editable");
+            idCardSpan.classList.remove("editable");
+            phoneSpan.classList.remove("editable");
+
+            // Change the Save button back to Edit button
+            const saveButton = nameSpan.parentElement.nextElementSibling.querySelector('.btn-success');
+            saveButton.textContent = 'Edit';
+            saveButton.classList.remove('btn-success');
+            saveButton.classList.add('btn-secondary');
+            saveButton.onclick = function() {
+                editUser(index);
+            };
         }
 
         function deleteUser(index) {
@@ -251,5 +297,12 @@
             userList.removeChild(userList.childNodes[index]);
         }
     </script>
+
+    <style>
+        .editable {
+            border: 1px solid #ced4da;
+            padding: 2px;
+        }
+    </style>
 </body>
 </html>
