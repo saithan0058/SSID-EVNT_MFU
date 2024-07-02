@@ -527,5 +527,3 @@ def add_user():
         c.unbind()
 
 
-if __name__ == "__main__":
-    app.run(debug=True)
