@@ -13,10 +13,9 @@ import re
 import random
 from pymongo import MongoClient
 import os
-<<<<<<< HEAD
+
 from ldap3 import Server, Connection, ALL, MODIFY_REPLACE, NTLM
-=======
->>>>>>> 050c80309c89a3e7e25dd8f416a7ae65b3e6b011
+
 
 current_time = datetime.datetime.now()
 
@@ -381,12 +380,7 @@ def post(ssid, event, location):
     # Return the id of the inserted document
     return result.inserted_id
 
-<<<<<<< HEAD
-
-@app.route("/delete_ssid/<ssid_id>", methods=["DELETE"])
-=======
 @app.route('/delete_ssid/<ssid_id>', methods=['DELETE'])
->>>>>>> 050c80309c89a3e7e25dd8f416a7ae65b3e6b011
 def delete_ssid(ssid_id):
     # Connect to MongoDB
     client = MongoClient("mongodb://localhost:27017")
