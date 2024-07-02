@@ -13,16 +13,19 @@ import re
 import random
 from pymongo import MongoClient
 import os
+<<<<<<< HEAD
 from ldap3 import Server, Connection, ALL, MODIFY_REPLACE, NTLM
+=======
+>>>>>>> 050c80309c89a3e7e25dd8f416a7ae65b3e6b011
 
 current_time = datetime.datetime.now()
 
-# ปรับเปลี่ยนเป็นพุธศักราช
+# ปรับเปลี่ยนเป็นพุทธศักราช
 buddhist_year = current_time.year + 543
 
 # สร้างวัตถุ datetime ใหม่ที่มีการเปลี่ยนแปลงแล้ว
 buddhist_time = current_time.replace(year=buddhist_year)
-# แสดงวันที่แบบพุธศักราช
+# แสดงวันที่แบบพุทธศักราช
 formatted_time = buddhist_time.strftime("%Y-%m-%d %H:%M:%S")
 
 app = Flask(__name__)
@@ -32,6 +35,13 @@ app = Flask(__name__)
 def index():
     with open("tester.html", "r", encoding="utf-8") as file:
         return file.read()
+    return send_from_directory('.', 'tester.html')
+
+@app.route('/testtest.html', methods=['GET'])
+def testtest():
+    return send_from_directory('.', 'testtest.html')
+
+
 
 
 @app.route("/testest", methods=["GET"])
@@ -94,8 +104,6 @@ def configure_ssid1():
         print(wlan_id)
 
     existing_array = [None] * 15
-
-    # Your code to retrieve WLAN IDs and store them in wlan_ids list
 
     # Add the values from wlan_ids to the existing array
     for i in range(len(wlan_ids)):
@@ -174,8 +182,6 @@ def configure_ssid():
         print(wlan_id)
 
     existing_array = [None] * 15
-
-    # Your code to retrieve WLAN IDs and store them in wlan_ids list
 
     # Add the values from wlan_ids to the existing array
     for i in range(len(wlan_ids)):
@@ -376,8 +382,12 @@ def post(ssid, event, location):
     # Return the id of the inserted document
     return result.inserted_id
 
+<<<<<<< HEAD
 
 @app.route("/delete_ssid/<ssid_id>", methods=["DELETE"])
+=======
+@app.route('/delete_ssid/<ssid_id>', methods=['DELETE'])
+>>>>>>> 050c80309c89a3e7e25dd8f416a7ae65b3e6b011
 def delete_ssid(ssid_id):
     # Connect to MongoDB
     client = MongoClient("mongodb://localhost:27017")
