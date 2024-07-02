@@ -22,7 +22,6 @@ app = Flask(__name__)
 def index():
     with open('tester.html', 'r', encoding='utf-8') as file:
         return file.read()
-    return send_from_directory('.', 'tester.html')
 
 @app.route('/testtest.html', methods=['GET'])
 def testtest():
