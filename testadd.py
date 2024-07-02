@@ -7,7 +7,7 @@ server = Server('ldaps://10.1.55.210:636', use_ssl=True, get_info=ALL)  # Replac
 con = Connection(server, user='test\\Administrator', password='12345678Xx', auto_bind=True)
 
 # Define new user details
-new_user_dn = 'CN=jame,OU=Guest,DC=test,DC=local'
+new_user_dn = 'CN=jame,OU=guest1,OU=Guest,DC=test,DC=local'
 new_user_attributes = {
     'cn': 'jame',
     'givenName': 'jame',

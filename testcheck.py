@@ -1,30 +1,30 @@
-from ldap3 import Server, Connection, ALL, MODIFY_REPLACE
+from ldap3 import Server, Connection, ALL, SUBTREE,NTLM
 
-# Define server connection details
-server = Server('ldaps://10.1.55.210:636', use_ssl=True, get_info=ALL)  # Replace with your Active Directory server IP or hostname
+server_address = "ldaps://10.1.55.210:636"
+domain = "test"
+loginun = "Administrator"
+loginpw = "12345678Xx"
 
-# Establish connection
-con = Connection(server, user='test\\Administrator', password='12345678Xx', auto_bind=True)
+# LDAP server details
+base_dn = 'OU=guest3,OU=Guest,DC=test,DC=local'  # Adjust for your nested OU
+user_dn = 'cn=admin,dc=test,dc=local'  # Adjust according to your setup
+password = 'your_password'  # Adjust according to your setup
 
-# Define user DN and attribute change
-user_dn = 'CN=james,OU=Guest,DC=test,DC=local'
-changes = {
-    'userAccountControl': [(MODIFY_REPLACE, [66048])]  # 66048 is the value for normal user without password change at next logon
-}
+# Connect to the server
+server = Server(server_address, connect_timeout=5, use_ssl=True, get_info=ALL)
+conn = Connection(server, user=f"{domain}\\{loginun}", password=loginpw, authentication=NTLM, auto_bind=True)
 
-try:
-    # Modify user attributes
-    con.modify(user_dn, changes)
+# Search for all users in the specified nested OU and retrieve their common names (cn)
+conn.search(
+    search_base=base_dn,
+    search_filter='(objectClass=person)',  # Filter for user objects
+    search_scope=SUBTREE,
+    attributes=['cn']  # Retrieve only the common name attribute
+)
 
-    # Check result
-    if con.result['result'] == 0:
-        print(f"Successfully removed 'User must change password at next logon' for '{user_dn}'.")
-    else:
-        print(f"Failed to modify '{user_dn}'. Error: {con.result['message']}")
+# Print the names of users in a numbered list format
+for i, entry in enumerate(conn.entries, start=1):
+    print(f"{i}. {entry.cn.value}")
 
-except Exception as e:
-    print(f"An error occurred: {e}")
-
-finally:
-    # Always unbind the connection
-    con.unbind()
+# Unbind the connection
+conn.unbind()

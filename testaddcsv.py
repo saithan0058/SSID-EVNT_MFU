@@ -6,7 +6,7 @@ domain = "test"
 loginun = "Administrator"
 loginpw = "12345678Xx"
 server_address = "ldaps://10.1.55.210:636"
-group_dn = "CN=WIFI USERS,CN=Users,DC=test,DC=local"
+group_dn = "CN=testgroup1,OU=guest1,OU=Guest,DC=test,DC=local"
 
 # Connect to the AD server
 server = Server(server_address, connect_timeout=5, use_ssl=True, get_info=ALL)
@@ -27,10 +27,10 @@ with open("Book1.csv", newline="") as csvfile:
         cn = row["cn"]
         givenName = row["givenName"]
         sn = row["sn"]
-        displayName = row["displayName"]
-        userPrincipalName = row["userPrincipalName"]
-        sAMAccountName = row["sAMAccountName"]
-        userdn = f"CN={cn},OU=Guest,DC=test,DC=local"
+        displayName = row["username"]
+        userPrincipalName = row["username"]
+        sAMAccountName = row["username"]
+        userdn = f"CN={cn},OU=guest1,OU=Guest,DC=test,DC=local"
 
         # Create user
         conn.add(
