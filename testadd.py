@@ -13,7 +13,7 @@ new_user_attributes = {
     'givenName': 'jame',
     'sn': 'User',
     'displayName': 'james',
-    'userPrincipalName': 'james@test.local',
+    'userPrincipalName': '1111111@test.local',
     'sAMAccountName': 'james',
     'userPassword': '12345678Xx',  # Replace with desired password
     'objectClass': ['top', 'person', 'organizationalPerson', 'user'],
