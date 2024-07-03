@@ -544,13 +544,13 @@ def add_usercsv(GroupandOU):
         results = []
         for row in reader:
             username = row["username"]
-            userpswd = row["password"]
-            cn = row["cn"]
-            givenName = row["givenName"]
-            sn = row["sn"]
+            userpswd = row["phone_number"]
+            cn = row["username"]
+            sn = row["username"]
+            givenName = row["username"]
             displayName = row["username"]
-            userPrincipalName = row["username"]
-            sAMAccountName = row["username"]
+            userPrincipalName = row["ID_crad"]
+            sAMAccountName = row["ID_crad"]
             userdn = f"CN={cn},OU={GroupandOU},OU=Guest,DC=test,DC=local"
 
             # สร้างผู้ใช้

@@ -6,7 +6,7 @@ domain = "test"
 loginun = "Administrator"
 loginpw = "12345678Xx"
 server_address = "ldaps://10.1.55.210:636"
-group_dn = "CN=testgroup1,OU=guest1,OU=Guest,DC=test,DC=local"
+group_dn = "CN=guest1,OU=guest1,OU=Guest,DC=test,DC=local"
 
 # Connect to the AD server
 server = Server(server_address, connect_timeout=5, use_ssl=True, get_info=ALL)
@@ -19,17 +19,17 @@ if not conn.bind():
     exit(1)
 
 # Read users from CSV and process them
-with open("Book1.csv", newline="") as csvfile:
+with open("user100.csv", newline="") as csvfile:
     reader = csv.DictReader(csvfile)
     for row in reader:
         username = row["username"]
-        userpswd = row["password"]
-        cn = row["cn"]
-        givenName = row["givenName"]
-        sn = row["sn"]
+        userpswd = row["phone_number"]
+        cn = row["username"]
+        sn = row["username"]
+        givenName = row["username"]
         displayName = row["username"]
-        userPrincipalName = row["username"]
-        sAMAccountName = row["username"]
+        userPrincipalName = row["ID_crad"]
+        sAMAccountName = row["ID_crad"]
         userdn = f"CN={cn},OU=guest1,OU=Guest,DC=test,DC=local"
 
         # Create user
@@ -37,10 +37,10 @@ with open("Book1.csv", newline="") as csvfile:
             userdn,
             attributes={
                 "cn": cn,
+                "sn":sn,
                 "givenName": givenName,
-                "sn": sn,
                 "displayName": displayName,
-                "userPrincipalName": userPrincipalName,
+                "userPrincipalName": f"{userPrincipalName}@test.local",
                 "sAMAccountName": sAMAccountName,
                 "userPassword": userpswd,
                 "objectClass": ["top", "person", "organizationalPerson", "user"],

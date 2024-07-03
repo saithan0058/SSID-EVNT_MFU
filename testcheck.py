@@ -6,7 +6,7 @@ loginun = "Administrator"
 loginpw = "12345678Xx"
 
 # LDAP server details
-base_dn = 'OU=guest3,OU=Guest,DC=test,DC=local'  # Adjust for your nested OU
+base_dn = 'OU=guest1,OU=Guest,DC=test,DC=local'  # Adjust for your nested OU
 user_dn = 'cn=admin,dc=test,dc=local'  # Adjust according to your setup
 password = 'your_password'  # Adjust according to your setup
 
