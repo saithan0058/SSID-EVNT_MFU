@@ -1,5 +1,6 @@
 from flask import (
     Flask,
+    logging,
     request,
     send_from_directory,
     render_template,
@@ -228,7 +229,6 @@ def configure_ssid():
 
     return redirect(url_for("history"))
 
-
 @app.route("/configure_ssid2", methods=["POST"])  # แบบรายบุคคล
 def configure_ssid2():
     ssid2 = request.form["ssid2"]
@@ -236,118 +236,114 @@ def configure_ssid2():
     location2 = request.form["location2"]
     csv_file = request.files["csvFile"]
 
-    # Save the event details into the ssid collection
-    ssid_id = post(ssid2, event2, location2)
+    try:
+        # Save the event details into the ssid collection
+        ssid_id = post(ssid2, event2, location2)
 
-    # Save CSV file to a directory
-    if not os.path.exists("uploads"):
-        os.makedirs("uploads")
+        # Save CSV file to a directory
+        if not os.path.exists("uploads"):
+            os.makedirs("uploads")
 
-    csv_filename = os.path.join("uploads", csv_file.filename)
-    csv_file.save(csv_filename)
+        csv_filename = os.path.join("uploads", csv_file.filename)
+        csv_file.save(csv_filename)
 
-    # Connect to the MongoDB server
-    client = MongoClient("mongodb://localhost:27017")
-    db = client["mydb"]
-    history_collection = db["history"]
+        # Connect to the MongoDB server
+        client = MongoClient("mongodb://localhost:27017")
+        db = client["mydb"]
+        history_collection = db["history"]
 
-    # Process CSV file and insert data into MongoDB
-    import csv
+        # Process CSV file and insert data into MongoDB
+        users = []
+        with open(csv_filename, "r", encoding="utf-8") as file:
+            reader = csv.reader(file)
+            for row in reader:
+                if len(row) == 4:  # Assuming the CSV has 4 columns: name, ID card number, phone number, email
+                    user = {
+                        "ssid_id": ssid_id,
+                        "name": row[0],
+                        "id_card_number": row[1],
+                        "phone_number": row[2],
+                        "email": row[3],
+                    }
+                    users.append(user)
 
-    users = []
-    with open(csv_filename, "r", encoding="utf-8") as file:
-        reader = csv.reader(file)
-        for row in reader:
-            if (
-                len(row) == 3
-            ):  # Assuming the CSV has 3 columns: name, ID card number, phone number
-                user = {
-                    "ssid_id": ssid_id,
-                    "name": row[0],
-                    "id_card_number": row[1],
-                    "phone_number": row[2],
-                }
-                users.append(user)
+        # Insert all users into the MongoDB collection
+        if users:
+            history_collection.insert_many(users)
+            logging.info(f"Inserted users: {users}")
+        else:
+            logging.info("No users found in CSV file.")
 
-    # Insert all users into the MongoDB collection
-    if users:
-        history_collection.insert_many(users)
-        print(f"Inserted users: {users}")
-    else:
-        print("No users found in CSV file.")
+        device = {
+            "device_type": "cisco_ios",
+            "ip": "172.30.99.56",
+            "username": "admin",
+            "password": "CITS@WLC2023",
+            "secret": "CITS@WLC2023",
+        }
 
-    device = {
-        "device_type": "cisco_ios",
-        "ip": "172.30.99.56",
-        "username": "admin",
-        "password": "CITS@WLC2023",
-        "secret": "CITS@WLC2023",
-    }
+        # Connect to the Cisco device
+        net_connect = ConnectHandler(**device)
+        net_connect.enable()
 
-    # Connect to the Cisco device
-    net_connect = ConnectHandler(**device)
-    oo = net_connect.enable()
-    # Send the command
-    print(oo)
+        # Send the command
+        output = net_connect.send_command("show wlan summary")
+        logging.info(output)
 
-    output = net_connect.send_command("show wlan summary")
+        wlan_ids = []
+        lines = output.splitlines()
+        for line in lines[5:]:
+            if line.strip():
+                match = re.match(r"^\s*(\d+)", line)
+                if match:
+                    wlan_id = match.group(1)
+                    wlan_ids.append(wlan_id)
 
-    wlan_ids = []
-    lines = output.splitlines()
-    print(lines)
-    for line in lines[5:]:
-        if line.strip():
-            match = re.match(r"^\s*(\d+)", line)
-            if match:
-                wlan_id = match.group(1)
-                wlan_ids.append(wlan_id)
+        # Print the WLAN IDs
+        for wlan_id in wlan_ids:
+            logging.info(wlan_id)
 
-    # Print the WLAN IDs
-    for wlan_id in wlan_ids:
-        print(wlan_id)
+        existing_array = [None] * 15
 
-    existing_array = [None] * 15
+        # Add the values from wlan_ids to the existing array
+        for i in range(len(wlan_ids)):
+            existing_array[i] = wlan_ids[i]
 
-    # Add the values from wlan_ids to the existing array
-    for i in range(len(wlan_ids)):
-        existing_array[i] = wlan_ids[i]
+        next_position = existing_array.index(None)
 
-    # Print the updated array
-    print(existing_array)
+        # Generate a random number between 1 and 16
+        random_num = random.randint(1, 16)
 
-    next_position = existing_array.index(None)
+        # Check if the random number already exists in the array
+        while str(random_num) in existing_array:
+            random_num = random.randint(1, 16)  # Generate a new random number
 
-    # Generate a random number between 1 and 16
-    random_num = random.randint(1, 16)
+        # Replace the next available position with the random number
+        existing_array[next_position] = str(random_num)
 
-    # Check if the random number already exists in the array
-    while str(random_num) in existing_array:
-        random_num = random.randint(1, 16)  # Generate a new random number
+        config_commands = [
+            f"wlan {ssid2} {random_num} {ssid2}",
+            "no security ft adaptive",
+            "security dot1x authentication-list list",
+            "security ft",
+            "security wpa akm ft dot1x",
+            "no shutdown",
+            "exit",
+            f"wireless tag policy {location2}",
+            f"wlan {ssid2} policy MFUPolicyProfile1",
+            "end",
+        ]
 
-    # Replace the next available position with the random number
-    existing_array[next_position] = str(random_num)
+        output = net_connect.send_config_set(config_commands)
+        logging.info(output)
 
-    config_commands = [
-        f"wlan {ssid2} {random_num} {ssid2}",
-        f"no security ft adaptive",
-        f"security dot1x authentication-list list",
-        f"security ft",
-        f"security wpa akm ft dot1x",
-        f"no shutdown",
-        f"exit",
-        f"wireless tag policy {location2}",
-        f"wlan {ssid2} policy MFUPolicyProfile1",
-        f"end",
-    ]
+        # Disconnect from the Cisco device
+        net_connect.disconnect()
 
-    output = net_connect.send_config_set(config_commands)
-    print(output)
-
-    # Disconnect from the Cisco device
-    net_connect.disconnect()
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
 
     return redirect(url_for("history"))
-
 
 def post(ssid, event, location):
     current_time = datetime.datetime.now()
