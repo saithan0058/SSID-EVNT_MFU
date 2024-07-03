@@ -257,11 +257,11 @@ def configure_ssid2():
         with open(csv_filename, "r", encoding="utf-8") as file:
             reader = csv.reader(file)
             for row in reader:
-                if len(row) == 4:  # Assuming the CSV has 4 columns: name, ID card number, phone number, email
+                if len(row) == 4:  # Assuming the CSV has 4 columns: ID card number, name, phone number, email
                     user = {
                         "ssid_id": ssid_id,
-                        "name": row[0],
-                        "id_card_number": row[1],
+                        "id_card_number": row[0],
+                        "name": row[1],
                         "phone_number": row[2],
                         "email": row[3],
                     }
