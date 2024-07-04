@@ -5,6 +5,7 @@ from flask import (
     send_from_directory,
     render_template,
     redirect,
+    session,
     url_for,
     jsonify,
 )
@@ -16,7 +17,7 @@ import random
 from pymongo import MongoClient
 import os
 import csv
-from ldap3 import Server, Connection, ALL, MODIFY_REPLACE, NTLM,SUBTREE,MODIFY_ADD
+from ldap3 import Server, Connection, ALL, MODIFY_REPLACE, NTLM, SUBTREE, MODIFY_ADD
 
 
 current_time = datetime.datetime.now()
@@ -29,24 +30,80 @@ buddhist_time = current_time.replace(year=buddhist_year)
 # แสดงวันที่แบบพุทธศักราช
 formatted_time = buddhist_time.strftime("%Y-%m-%d %H:%M:%S")
 
+
 app = Flask(__name__)
+app.secret_key = "your_secret_key"  # Set a secret key for session management
+
+# Mock database or user credentials (for demonstration)
+USER_CREDENTIALS = {"username": "admin", "password": "admin"}
 
 
-@app.route("/", methods=["GET"])
+# Middleware to prevent caching of restricted pages after logout
+@app.after_request
+def add_header(response):
+    response.headers["Cache-Control"] = "no-store"
+    return response
+
+
+# Routes
+
+
+@app.route("/")
 def index():
-    with open("tester.html", "r", encoding="utf-8") as file:
-        return file.read()
+    if "username" in session:
+        return redirect(url_for("homepage"))  # Redirect logged-in user to homepage
+    return render_template("login.html")
 
-@app.route('/testtest', methods=['GET'])
+
+@app.route("/login", methods=["POST"])
+def login():
+    username = request.form.get("username")
+    password = request.form.get("password")
+
+    # Check if username and password match the stored credentials
+    if (
+        username == USER_CREDENTIALS["username"]
+        and password == USER_CREDENTIALS["password"]
+    ):
+        # Store the username in session
+        session["username"] = username
+        return redirect(url_for("homepage"))
+    else:
+        return render_template("login.html", error="Invalid username or password")
+
+
+@app.route("/logout")
+def logout():
+    # Clear the session
+    session.pop("username", None)
+    return redirect(url_for("index"))
+
+
+@app.route("/homepage")
+def homepage():
+    if "username" in session:
+        return render_template("history.html", username=session["username"])
+    else:
+        return redirect(url_for("index"))  # Redirect to login if not logged in
+
+
+# if __name__ == "__main__":
+#     app.run(host="localhost", port=3000)
+# @app.route("/", methods=["GET"])
+# def index():
+#     with open("tester.html", "r", encoding="utf-8") as file:
+#         return file.read()
+
+
+@app.route("/testtest", methods=["GET"])
 def testtest():
-    return send_from_directory('.', 'testtest.html')
+    return send_from_directory(".", "testtest.html")
+
 
 # testcsv file template
-@app.route('/adduserpage', methods=['GET'])
+@app.route("/adduserpage", methods=["GET"])
 def adduserpage():
-    return send_from_directory('.', 'pagetestcsv.html')
-
-
+    return send_from_directory(".", "pagetestcsv.html")
 
 
 @app.route("/testest", methods=["GET"])
@@ -229,6 +286,7 @@ def configure_ssid():
 
     return redirect(url_for("history"))
 
+
 @app.route("/configure_ssid2", methods=["POST"])  # แบบรายบุคคล
 def configure_ssid2():
     ssid2 = request.form["ssid2"]
@@ -257,7 +315,9 @@ def configure_ssid2():
         with open(csv_filename, "r", encoding="utf-8") as file:
             reader = csv.reader(file)
             for row in reader:
-                if len(row) == 4:  # Assuming the CSV has 4 columns: ID card number, name, phone number, email
+                if (
+                    len(row) == 4
+                ):  # Assuming the CSV has 4 columns: ID card number, name, phone number, email
                     user = {
                         "ssid_id": ssid_id,
                         "id_card_number": row[0],
@@ -345,6 +405,7 @@ def configure_ssid2():
 
     return redirect(url_for("history"))
 
+
 def post(ssid, event, location):
     current_time = datetime.datetime.now()
 
@@ -382,7 +443,8 @@ def post(ssid, event, location):
     # Return the id of the inserted document
     return result.inserted_id
 
-@app.route('/delete_ssid/<ssid_id>', methods=['DELETE'])
+
+@app.route("/delete_ssid/<ssid_id>", methods=["DELETE"])
 def delete_ssid(ssid_id):
     # Connect to MongoDB
     client = MongoClient("mongodb://localhost:27017")
@@ -435,7 +497,8 @@ def delete_ssid(ssid_id):
             error_message = "Failed to delete SSID."
 
         return error_message
-    
+
+
 # server prop----------------------------------------------------------------------------------------------------
 server_address = "ldaps://10.1.55.210:636"
 domain = "test"
@@ -445,7 +508,8 @@ loginpw = "12345678Xx"
 
 # add user in ad ----------------------------------------------------------------------------------------------------
 
-@app.route("/add_user", methods=["POST"]) #เพิ่มรายชื่อทีละคน
+
+@app.route("/add_user", methods=["POST"])  # เพิ่มรายชื่อทีละคน
 def add_user():
     username = request.json.get("username")
     useremail = request.json.get("useremail")
@@ -508,19 +572,23 @@ def add_user():
         return jsonify({"message": f"Failed to add user: {str(e)}"}), 500
     finally:
         c.unbind()
+
+
 # add user in ad ----------------------------------------------------------------------------------------------------
 
 # add user in ad ----------------------------------------------------------------------------------------------------
-group_dn = "CN=testgroup1,OU=guest1,OU=Guest,DC=test,DC=local" #csv file add
+group_dn = "CN=testgroup1,OU=guest1,OU=Guest,DC=test,DC=local"  # csv file add
+
+
 @app.route("/add_usercsv/<GroupandOU>", methods=["POST"])
 def add_usercsv(GroupandOU):
-    group_dn = f'CN={GroupandOU},OU={GroupandOU},OU=Guest,DC=test,DC=local'
-    if 'file' not in request.files:
+    group_dn = f"CN={GroupandOU},OU={GroupandOU},OU=Guest,DC=test,DC=local"
+    if "file" not in request.files:
         return jsonify({"error": "No file part"}), 400
-    file = request.files['file']
-    if file.filename == '':
+    file = request.files["file"]
+    if file.filename == "":
         return jsonify({"error": "No selected file"}), 400
-    if not file.filename.endswith('.csv'):
+    if not file.filename.endswith(".csv"):
         return jsonify({"error": "Invalid file format"}), 400
 
     # Connect to the AD server
@@ -530,7 +598,10 @@ def add_usercsv(GroupandOU):
     )
 
     if not conn.bind():
-        return jsonify({"error": f"Failed to connect to AD server. Error: {conn.result}"}), 500
+        return (
+            jsonify({"error": f"Failed to connect to AD server. Error: {conn.result}"}),
+            500,
+        )
 
     # Read users from CSV and process them
     try:
@@ -580,7 +651,13 @@ def add_usercsv(GroupandOU):
             if conn.result["result"] == 0:
                 results.append({"username": username, "status": "success"})
             else:
-                results.append({"username": username, "status": "failure", "error": conn.result["message"]})
+                results.append(
+                    {
+                        "username": username,
+                        "status": "failure",
+                        "error": conn.result["message"],
+                    }
+                )
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     finally:
@@ -589,50 +666,66 @@ def add_usercsv(GroupandOU):
 
     return jsonify(results), 200
 
+
 # add user in ad ----------------------------------------------------------------------------------------------------
 
 
 # get user in ad ----------------------------------------------------------------------------------------------------
 
-@app.route('/get_users/<base_dn>', methods=['GET']) #get user list เช็ครายชื่อในouนั้นๆ
+
+@app.route("/get_users/<base_dn>", methods=["GET"])  # get user list เช็ครายชื่อในouนั้นๆ
 def get_users(base_dn):
     try:
         # Connect to LDAP server
         server = Server(server_address, connect_timeout=5, use_ssl=True, get_info=ALL)
-        conn = Connection(server, user=f"{domain}\\{loginun}", password=loginpw, authentication=NTLM, auto_bind=True)
-        
+        conn = Connection(
+            server,
+            user=f"{domain}\\{loginun}",
+            password=loginpw,
+            authentication=NTLM,
+            auto_bind=True,
+        )
+
         # Define the base DN based on the provided OU name
         base_dn = f"OU={base_dn},OU=Guest,DC=test,DC=local"
 
         # Search for all users in the specified nested OU and retrieve their common names (cn)
         conn.search(
             search_base=base_dn,
-            search_filter='(objectClass=person)',  # Filter for user objects
+            search_filter="(objectClass=person)",  # Filter for user objects
             search_scope=SUBTREE,
-            attributes=['cn']  # Retrieve only the common name attribute
+            attributes=["cn"],  # Retrieve only the common name attribute
         )
-        
+
         # Store user names in a list
         user_names = [entry.cn.value for entry in conn.entries]
-        
+
         # Unbind the connection
         conn.unbind()
-        
+
         # Return user names as JSON response
-        return jsonify({'users': user_names})
-    
+        return jsonify({"users": user_names})
+
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
+
 
 # get user in ad ----------------------------------------------------------------------------------------------------
 
-# delete user in ad ---------------------------------------------------------------------------------------------------- 
-@app.route('/delete_users/<oudn>', methods=['DELETE'])
+
+# delete user in ad ----------------------------------------------------------------------------------------------------
+@app.route("/delete_users/<oudn>", methods=["DELETE"])
 def delete_users(oudn):
     try:
         # Connect to the LDAP server
         server = Server(server_address, connect_timeout=5, use_ssl=True, get_info=ALL)
-        conn = Connection(server, user=f"{domain}\\{loginun}", password=loginpw, authentication=NTLM, auto_bind=True)
+        conn = Connection(
+            server,
+            user=f"{domain}\\{loginun}",
+            password=loginpw,
+            authentication=NTLM,
+            auto_bind=True,
+        )
 
         # Define the base DN based on the provided OU name
         base_dn = f"OU={oudn},OU=Guest,DC=test,DC=local"
@@ -654,17 +747,24 @@ def delete_users(oudn):
                 messages.append(f"User '{user_dn}' successfully deleted.")
                 print(f"User '{user_dn}' successfully deleted.")
             else:
-                messages.append(f"Failed to delete user '{user_dn}'. Error: {conn.result['message']}")
-                print(f"Failed to delete user '{user_dn}'. Error: {conn.result['message']}")
+                messages.append(
+                    f"Failed to delete user '{user_dn}'. Error: {conn.result['message']}"
+                )
+                print(
+                    f"Failed to delete user '{user_dn}'. Error: {conn.result['message']}"
+                )
 
         # Unbind the LDAP connection
         conn.unbind()
 
-        return jsonify({'message': messages})
+        return jsonify({"message": messages})
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
-# delete user in ad ---------------------------------------------------------------------------------------------------- 
+        return jsonify({"error": str(e)}), 500
+
+
+# delete user in ad ----------------------------------------------------------------------------------------------------
+
 
 # Serve static files from the 'static' folder
 @app.route("/static/<path:filename>", methods=["GET"])
@@ -675,8 +775,3 @@ def serve_static(filename):
 
 if __name__ == "__main__":
     app.run(host="localhost", port=3000)
-
-
-
-
-
