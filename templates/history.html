@@ -1,3 +1,4 @@
+<!-- templates/history.html -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -8,124 +9,19 @@
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     />
-    <style>
-      body {
-        background: url("../static/images/mfubg_fill.png") no-repeat center
-          center fixed;
-        background-size: cover;
-        justify-content: center;
-        align-items: center;
-        margin: 0;
-        padding: 0;
-      }
-      .navbar {
-        background-color: white;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      }
-      .navbar-brand {
-        display: flex;
-        align-items: center;
-      }
-      .navbar-brand img {
-        height: 50px;
-        margin-right: 10px;
-      }
-      .navbar-brand div {
-        display: flex;
-        flex-direction: column;
-      }
-      .navbar-brand h1 {
-        font-size: 1.5rem;
-        margin: 0;
-        font-weight: bold;
-        color: #333;
-      }
-      .navbar-brand h2 {
-        font-size: 0.9rem;
-        margin: 0;
-        color: gray;
-        letter-spacing: 1px;
-      }
-      .navbar-brand .divider {
-        border-top: 1px solid gray;
-        width: 100%;
-        margin: 2px 0;
-      }
-      .navbar-nav .nav-item .nav-link {
-        color: black;
-        font-weight: bold;
-      }
-      .nav-link.active {
-        color: brown;
-      }
-      .container {
-        margin-top: 20px;
-        background-color: white;
-        padding: 20px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        border-radius: 8px;
-      }
-      .table th,
-      .table td {
-        vertical-align: middle;
-      }
-      .pagination {
-        justify-content: flex-end;
-      }
-      /* Media Query for Responsive Design */
-      @media (max-width: 768px) {
-        .navbar-brand img {
-          height: 40px;
-        }
-        .navbar-brand h1 {
-          font-size: 1.2rem;
-        }
-        .navbar-brand h2 {
-          font-size: 0.8rem;
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="/templates/navbar.html" />
+    <link rel="stylesheet" href="/static/css/cssmfu.css" />
   </head>
-  <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="#">
-        <img src="/static/images/mfu_logo.png" alt="Logo" />
-        <div>
-          <h1>SSID.MFU</h1>
-          <div class="divider"></div>
-          <h2>EVENT WI-FI SYSTEM</h2>
-        </div>
-      </a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbarNav"
-        aria-controls="navbarNav"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ml-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="#">Service</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link active" href="#">History</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" >{{username}}</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="logout-btn" href="{{ url_for('logout') }}"">Log out</a>
-        </li>
-        </ul>
-      </div>
-    </nav>
+  <style>
+    /* Custom CSS for centering content */
+    .content-container {
+      margin-top: 20px; /* Adjust margin as needed */
+    }
+  </style>
+  <body style="background-image: url(/static/images/mfubg_fill.png)">
+    {% include 'navbar.html' %}
 
-    <div class="container">
+    <div class="container content-container">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h3>History</h3>
         <div class="input-group" style="width: 300px">
@@ -180,8 +76,5 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script>
-      
-    </script>
   </body>
 </html>
