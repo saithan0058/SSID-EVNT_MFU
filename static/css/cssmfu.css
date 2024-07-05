@@ -957,3 +957,11 @@ h3 {
 #config1 {
   margin-top: 2em;
 }
+
+
+
+
+.logout-link {
+  transition: transform 0.5s ease; /* เพิ่ม transition นี้ */
+}
+

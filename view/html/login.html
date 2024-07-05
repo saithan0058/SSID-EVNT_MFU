@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Custom CSS -->
+    <style>
+      body {
+        background-image:url("public/assets/mfu_merge.jpg");
+        background-size: cover;
+        background-position: bottom;
+        background-repeat: no-repeat;
+        background-color: #f8f9fa;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .ant-btn,
+      .ant-btn:active,
+      .ant-btn:focus {
+        outline: 0;
+      }
+
+      .card-authentication {
+        max-width: 400px;
+        width: 100%;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.14);
+        background: #fff;
+        border-radius: 10px;
+      }
+
+      .login-btn {
+        background-color: transparent;
+        background-image: none;
+        border: 1px solid #a83c30;
+        border-radius: 21px;
+        box-shadow: 0 2px 0 rgba(0, 0, 0, 0.015);
+        color: #a83c30;
+        cursor: pointer;
+        display: inline-block;
+        font-size: 18px; /* ขนาดฟอนต์ใหญ่ขึ้น */
+        font-weight: 400;
+        height: 30px; /* ความสูงของปุ่มเพิ่มขึ้น */
+        padding: 0 20px; /* เพิ่มการบุด้านข้าง */
+        line-height: 1.499;
+        position: relative;
+        text-align: center;
+        touch-action: manipulation;
+        transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+        user-select: none;
+        white-space: nowrap;
+      }
+
+      .login-btn:hover {
+        background-color: #a83c30;
+        color: #ffffff;
+      }
+
+      .mb-3 {
+        margin-bottom: 10px; /* ลดระยะห่างระหว่างฟอร์ม */
+      }
+
+      .error-message {
+        color: red;
+        font-size: 14px;
+        margin-top: 10px;
+      }
+
+      .logout-btn {
+        background-color: #dc3545;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin-top: 20px;
+        border-radius: 5px;
+      }
+
+      .password-toggle {
+        position: absolute;
+        top: 50%;
+        right: 15px;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #a83c30;
+        z-index: 10; /* จัดเรียงให้ปุ่มไปอยู่หน้า input field */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container d-flex justify-content-center align-items-center">
+      <div class="card-authentication">
+        <div class="text-center margin-bottom-large">
+          <h2>Login</h2>
+          <form
+            action="/login"
+            method="POST"
+            class="ant-form ant-form-horizontal"
+          >
+            <div class="mb-3 position-relative">
+              <label for="username" class="form-label"></label>
+              <input
+                type="text"
+                placeholder="Username"
+                class="form-control"
+                id="username"
+                name="username"
+                required
+              />
+            </div>
+            <div class="mb-3 position-relative">
+              <label for="password" class="form-label"></label>
+              <input
+                type="password"
+                placeholder="Password"
+                class="form-control"
+                id="password"
+                name="password"
+                required
+              />
+              <span
+                class="password-toggle"
+                onclick="togglePassword()"
+                style="color: rgb(0, 0, 0)"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  class="bi bi-eye"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M8 2a5.53 5.53 0 0 0-1.465.198A6.11 6.11 0 0 0 1 8a6.11 6.11 0 0 0 2.535 5.802c.272.169.563.298.865.389.19.388.405.74.635 1.06A7.861 7.861 0 0 1 8 14c1.981 0 3.782-.722 5.162-1.908.23-.32.445-.672.635-1.06.302-.091.593-.22.865-.389A6.11 6.11 0 0 0 15 8a6.11 6.11 0 0 0-2.535-5.802A5.53 5.53 0 0 0 8 2zM4.879 4.464a1.5 1.5 0 0 1 2.121 2.121A3.5 3.5 0 0 0 8 8a3.5 3.5 0 0 0 .879 2.343c-.096.172-.206.336-.328.49a5.785 5.785 0 0 1-1.615-1.615.5.5 0 1 1 .707-.707c.4.4.647.896.823 1.414a6.136 6.136 0 0 1-.49.328A3.5 3.5 0 0 0 8 10a3.5 3.5 0 0 0-2.879-3.536c.096-.172.206-.336.328-.49a5.785 5.785 0 0 1 1.615 1.615.5.5 0 0 1-.707.707 5.116 5.116 0 0 0-.823-1.414 6.136 6.136 0 0 1 .49-.328zm7.004 7.004a1 1 0 0 1-1.496-1.328l1.5-1.5a1 1 0 1 1 1.496 1.328l-1.5 1.5z"
+                  />
+                </svg>
+              </span>
+            </div>
+            <button type="submit" class="login-btn">Login</button>
+            {% if 'username' in session %}
+            <div>
+              Logged in as: {{ session['username'] }}
+              <a href="/logout" class="logout-btn">Logout</a>
+            </div>
+            {% endif %} {% if error %}
+            <div class="error-message">{{ error }}</div>
+            {% endif %}
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle (including Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      function togglePassword() {
+        const passwordInput = document.getElementById("password");
+        const passwordToggle = document.querySelector(".password-toggle");
+
+        if (passwordInput.type === "password") {
+          passwordInput.type = "text";
+          passwordToggle.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M8 4a4 4 0 0 0-3.582 5.932l-1.5 1.5a.5.5 0 0 0 .582.796l1.5-1.5A4 4 0 0 0 8 4zm7.721 11.721a.5.5 0 0 0 0-.707l-14-14a.5.5 0 0 0-.707.707l2.674 2.674A5.973 5.973 0 0 0 1 8a6 6 0 0 0 6 6c1.33 0 2.553-.434 3.554-1.163l2.674 2.674a.5.5 0 0 0 .707 0zM9.332 5.668A2 2 0 1 1 5.668 9.332 2 2 0 0 1 9.332 5.668z"/>
+            </svg>`;
+        } else {
+          passwordInput.type = "password";
+          passwordToggle.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M8 2a5.53 5.53 0 0 0-1.465.198A6.11 6.11 0 0 0 1 8a6.11 6.11 0 0 0 2.535 5.802c.272.169.563.298.865.389.19.388.405.74.635 1.06A7.861 7.861 0 0 1 8 14c1.981 0 3.782-.722 5.162-1.908.23-.32.445-.672.635-1.06.302-.091.593-.22.865-.389A6.11 6.11 0 0 0 15 8a6.11 6.11 0 0 0-2.535-5.802A5.53 5.53 0 0 0 8 2zM4.879 4.464a1.5 1.5 0 0 1 2.121 2.121A3.5 3.5 0 0 0 8 8a3.5 3.5 0 0 0 .879 2.343c-.096.172-.206.336-.328.49a5.785 5.785 0 0 1-1.615-1.615.5.5 0 1 1 .707-.707c.4.4.647.896.823 1.414a6.136 6.136 0 0 1-.49.328A3.5 3.5 0 0 0 8 10a3.5 3.5 0 0 0-2.879-3.536c.096-.172.206-.336.328-.49a5.785 5.785 0 0 1 1.615 1.615.5.5 0 0 1-.707.707 5.116 5.116 0 0 0-.823-1.414 6.136 6.136 0 0 1 .49-.328zm7.004 7.004a1 1 0 0 1-1.496-1.328l1.5-1.5a1 1 0 1 1 1.496 1.328l-1.5 1.5z"/>
+            </svg>`;
+        }
+      }
+    </script>
+  </body>
+</html>

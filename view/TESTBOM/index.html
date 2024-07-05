@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CSV File Upload</title>
+</head>
+<body>
+    <h2>Upload CSV File</h2>
+    <form action="/upload_csv" method="post" enctype="multipart/form-data" onsubmit="uploadCSVFile()">
+        <input type="file" name="csv_file" id="csv_file" accept=".csv">
+        <br><br>
+        <input type="submit" value="Upload">
+    </form>
+
+    <script>
+        function uploadCSVFile() {
+            var fileInput = document.getElementById("csv_file");
+            var file = fileInput.files[0];
+
+            // Create a FormData object and append the CSV file to it
+            var formData = new FormData();
+            formData.append("csv_file", file);
+
+            // Make an AJAX request to the server
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    alert("CSV file uploaded successfully!");
+                }
+            };
+            xhttp.open("POST", "/upload_csv", true);
+            xhttp.send(formData);
+        }
+    </script>
+</body>
+</html>

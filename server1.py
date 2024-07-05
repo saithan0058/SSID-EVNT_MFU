@@ -35,7 +35,9 @@ app = Flask(__name__)
 app.secret_key = "your_secret_key"  # Set a secret key for session management
 
 # Mock database or user credentials (for demonstration)
-USER_CREDENTIALS = {"username": "admin", "password": "admin"}
+USER_CREDENTIALS = [{"username": "admin", "password": "admin"}]
+USER_CREDENTIALS.append({"username": "jame", "password": "jame"})
+USER_CREDENTIALS.append({"username": "pure", "password": "pure"})
 
 
 # Middleware to prevent caching of restricted pages after logout
@@ -61,11 +63,15 @@ def login():
     password = request.form.get("password")
 
     # Check if username and password match the stored credentials
-    if (
-        username == USER_CREDENTIALS["username"]
-        and password == USER_CREDENTIALS["password"]
-    ):
-        # Store the username in session
+    user = next(
+        (
+            u
+            for u in USER_CREDENTIALS
+            if u["username"] == username and u["password"] == password
+        ),
+        None,
+    )
+    if user:
         session["username"] = username
         return redirect(url_for("homepage"))
     else:
@@ -83,6 +89,31 @@ def logout():
 def homepage():
     if "username" in session:
         return render_template("history.html", username=session["username"])
+
+    else:
+        return redirect(url_for("index"))  # Redirect to login if not logged in
+
+
+@app.route("/nopassword")
+def nopassword():
+    if "username" in session:
+        return render_template("nopassword.html", username=session["username"])
+    else:
+        return redirect(url_for("index"))  # Redirect to login if not logged in
+
+
+@app.route("/psk")
+def psk():
+    if "username" in session:
+        return render_template("psk.html", username=session["username"])
+    else:
+        return redirect(url_for("index"))  # Redirect to login if not logged in
+
+
+@app.route("/individual")
+def individual():
+    if "username" in session:
+        return render_template("Individual.html", username=session["username"])
     else:
         return redirect(url_for("index"))  # Redirect to login if not logged in
 

@@ -1,0 +1,12 @@
+.dropdown-menu {
+  background-color: #a83c30; /* สีแดง */
+  color: white; /* ตัวหนังสือสีขาว */
+}
+
+.dropdown-item {
+  color: white;
+}
+
+.dropdown-item:hover {
+  background-color: #fdfdfd; /* สีแดงอ่อน */
+}
