@@ -1,77 +1,91 @@
-<!-- templates/history.html -->
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WI-FI System</title>
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    />
-    <link rel="stylesheet" href="/templates/navbar.html" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     <link rel="stylesheet" href="/static/css/cssmfu.css" />
-    
-  </head>
-  <style>
-    /* Custom CSS for centering content */
-    .content-container {
-      margin-top: 20px; /* Adjust margin as needed */
+    <link rel="stylesheet" href="/static/css/dropdown-menu.css">
+</head>
+<style>
+    body, html {
+        height: 100%;
+        font-family: Arial, sans-serif;
     }
-  </style>
-  <body style="background-image: url(/static/images/mfubg_fill.png)">
+    .content-container {
+        padding: 20px;
+    }
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: rgba(0,0,0,.05);
+    }
+</style>
+<body style="background-image: url(/static/images/mfubg_fill.png)">
     {% include 'navbar.html' %}
 
     <div class="container content-container">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3>History</h3>
-        <div class="input-group" style="width: 300px">
-          <input type="text" class="form-control" placeholder="Search..." />
-          <div class="input-group-append">
-            <button class="btn btn-outline-secondary" type="button">
-              <i class="fa fa-search"></i>
-            </button>
-          </div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3>History</h3>
+            <div class="input-group" style="width: 300px">
+                <input type="text" class="form-control" placeholder="Search..." />
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
         </div>
-      </div>
-      <table class="table table-striped table-hover">
-        <thead>
-          <tr>
-            <th><input type="checkbox" /></th>
-            <th>#</th>
-            <th>SSID Name</th>
-            <th>Event</th>
-            <th>Location</th>
-            <th>Time</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><input type="checkbox" /></td>
-            <td>1</td>
-            <td>XXXXXXXXX<br />5684326526</td>
-            <td>XXXXXXXX</td>
-            <td>XXXXXX</td>
-            <td>XXXX</td>
-            <td>ON</td>
-          </tr>
-          <!-- Add more rows as needed -->
-        </tbody>
-      </table>
-      <nav>
-        <ul class="pagination">
-          <li class="page-item disabled">
-            <a class="page-link" href="#" tabindex="-1">Previous</a>
-          </li>
-          <li class="page-item"><a class="page-link" href="#">1</a></li>
-          <li class="page-item"><a class="page-link" href="#">2</a></li>
-          <li class="page-item"><a class="page-link" href="#">3</a></li>
-          <li class="page-item">
-            <a class="page-link" href="#">Next</a>
-          </li>
-        </ul>
-      </nav>
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" /></th>
+                    <th>#</th>
+                    <th>SSID Name</th>
+                    <th>Event</th>
+                    <th>Location</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Add rows here -->
+                <tr>
+                    <td><input type="checkbox" /></td>
+                    <td>1</td>
+                    <td>XXXXXXXXX<br />5684326526</td>
+                    <td>XXXXXXXX</td>
+                    <td>XXXXXX</td>
+                    <td>XXXX</td>
+                    <td>ON</td>
+                </tr>
+            </tbody>
+        </table>
+        <nav>
+            <ul class="pagination">
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                </li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#">Next</a>
+                </li>
+            </ul>
+        </nav>
     </div>
-  </body>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // JavaScript for handling search functionality
+        document.querySelector('.input-group-append').addEventListener('click', function() {
+            var searchQuery = document.querySelector('.form-control').value;
+            console.log('Searching for:', searchQuery);
+            // Further code to handle the search logic
+        });
+    </script>
+</body>
 </html>
