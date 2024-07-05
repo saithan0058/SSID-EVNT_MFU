@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <title>Homepage</title>
+    <link rel="stylesheet" href="/static/cssmfu.css">
+</head>
+
+<body id="bodybg">
+    <nav class="navbar navbar-expand-sm bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand"><img src="/static/mfu.gif" alt=""></a>
+            <div>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="collapsibleNavbar">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Username</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="but" href="/login-1.html" role="button">Log out</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex-container">
+        <div class="flex-item-left">
+            <p id="link2"><a id="link3">สร้าง SSID</a></p>
+            <p id="link1"><a href="/history" id="link">ประวัติการสร้าง SSID</a></p>
+        </div>
+        <div class="flex-item-right">
+            <div id="config1"><button data-bs-toggle="modal" data-bs-target="#myModal2" id="config4">แบบรายบุคคล</button></div>
+        </div>
+    </div>
+
+    <!-- The Modal2 -->
+    <div class="modal fade" id="myModal2">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title" style="text-align: center;">แบบรายบุคคล</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <form id="ssidForm2" enctype="multipart/form-data">
+                        <div class="row d-flex justify-content-center">
+                            <div class="col-md-6">
+                                <div class="card-body pt-0" id="evnt">
+                                    <input type="text" class="form-control mb-2" id="ssid2" placeholder="โปรดระบุชื่่อ SSID ">
+                                    <input type="text" class="form-control mb-2" id="event2" placeholder="โปรดระบุชื่อกิจกรรม">
+                                    <select id="location2" class="form-select mb-2">
+                                        <option value="" selected disabled>โปรดเลือกสถานที่</option>
+                                        <option value="AS">AS</option>
+                                        <option value="ap2">AP2</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="file-upload-container mb-3">
+                                    <input type="file" id="csvFile" name="csvFile" accept=".csv" class="form-control">
+                                </div>
+                                <div class="user-list" id="userList" style="overflow-y:auto; max-height: 200px;">
+                                    <!-- This div will contain the user list -->
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-center mt-3">
+                                <input type="button" data-bs-dismiss="modal" value="ถัดไป" onclick="configureSSID2()" id="butsub" class="btn btn-primary">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function configureSSID1() {
+            var ssid1 = document.getElementById("ssid1").value;
+            var event1 = document.getElementById("event1").value;
+            var location1 = document.getElementById("location1").value;
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    alert("SSID configuration successful!");
+                    window.location.href = "/history";
+                }
+            };
+            xhttp.open("POST", "/configure_ssid1", true);
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.send("ssid1=" + ssid1 + "&event1=" + event1 + "&location1=" + location1);
+        }
+
+        function configureSSID() {
+            var ssid = document.getElementById("ssid").value;
+            var password = document.getElementById("password").value;
+            var confirmPassword = document.getElementById("confirmPassword").value;
+            var event = document.getElementById("event").value;
+            var location = document.getElementById("location").value;
+
+            if (password !== confirmPassword) {
+                alert("รหัสผ่านไม่เหมือนกัน");
+                return false;
+            } else {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        alert("SSID configuration successful!");
+                        window.location.href = "/history";
+                    }
+                };
+                xhttp.open("POST", "/configure_ssid", true);
+                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xhttp.send("ssid=" + ssid + "&password=" + password + "&event=" + event + "&location=" + location);
+                return true;
+            }
+        }
+
+        function configureSSID2() {
+            var ssid2 = document.getElementById("ssid2").value;
+            var event2 = document.getElementById("event2").value;
+            var location2 = document.getElementById("location2").value;
+            var csvFile = document.getElementById("csvFile").files[0];
+
+            var formData = new FormData();
+            formData.append("ssid2", ssid2);
+            formData.append("event2", event2);
+            formData.append("location2", location2);
+            formData.append("csvFile", csvFile);
+
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    alert("SSID configuration successful!");
+                    loadUserList(csvFile); // Load user list without changing page
+                }
+            };
+            xhttp.open("POST", "/configure_ssid2", true);
+            xhttp.send(formData);
+        }
+
+        document.getElementById('csvFile').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            loadUserList(file);
+        });
+
+        function loadUserList(file) {
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const content = e.target.result;
+                    const lines = content.split('\n');
+                    let userList = '<ul class="list-group">';
+                    for (let i = 0; i < lines.length; i++) {
+                        const columns = lines[i].split(',');
+                        if (columns.length === 3) {
+                            userList += `
+                                <li class="list-group-item d-flex justify-content-between align-items-start" id="user-${i}">
+                                    <div class="ms-2 me-auto">
+                                        <div class="fw-bold">Name: <span id="name-${i}">${columns[0]}</span></div>
+                                        ID Card: <span id="id_card-${i}">${columns[1]}</span>, 
+                                        Phone: <span id="phone-${i}">${columns[2]}</span>
+                                    </div>
+                                    <span>
+                                        <button class="btn btn-secondary btn-sm me-2" onclick="editUser(${i}, event)">แก้ไข</button>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteUser(${i}, event)">ลบ</button>
+                                    </span>
+                                </li>`;
+                        }
+                    }
+                    userList += '</ul>';
+                    document.getElementById('userList').innerHTML = userList;
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function editUser(index, event) {
+            event.preventDefault();
+            const nameSpan = document.getElementById(`name-${index}`);
+            const idCardSpan = document.getElementById(`id_card-${index}`);
+            const phoneSpan = document.getElementById(`phone-${index}`);
+
+            nameSpan.contentEditable = true;
+            idCardSpan.contentEditable = true;
+            phoneSpan.contentEditable = true;
+
+            nameSpan.focus();
+
+            // Add a class to indicate edit mode
+            nameSpan.classList.add("editable");
+            idCardSpan.classList.add("editable");
+            phoneSpan.classList.add("editable");
+
+            // Change the Edit button to Save button
+            const editButton = nameSpan.parentElement.nextElementSibling.querySelector('.btn-secondary');
+            const deleteButton = nameSpan.parentElement.nextElementSibling.querySelector('.btn-danger');
+            
+            editButton.textContent = 'ตกลง';
+            editButton.classList.remove('btn-secondary');
+            editButton.classList.add('btn-success');
+            editButton.onclick = function(event) {
+                saveUser(index, event);
+            };
+
+            deleteButton.textContent = 'ยกเลิก';
+            deleteButton.classList.remove('btn-danger');
+            deleteButton.classList.add('btn-warning');
+            deleteButton.onclick = function(event) {
+                cancelEdit(index, event);
+            };
+        }
+
+        function saveUser(index, event) {
+            event.preventDefault();
+            const nameSpan = document.getElementById(`name-${index}`);
+            const idCardSpan = document.getElementById(`id_card-${index}`);
+            const phoneSpan = document.getElementById(`phone-${index}`);
+
+            nameSpan.contentEditable = false;
+            idCardSpan.contentEditable = false;
+            phoneSpan.contentEditable = false;
+
+            // Remove the edit mode class
+            nameSpan.classList.remove("editable");
+            idCardSpan.classList.remove("editable");
+            phoneSpan.classList.remove("editable");
+
+            // Change the Save button back to Edit button
+            const saveButton = nameSpan.parentElement.nextElementSibling.querySelector('.btn-success');
+            const cancelButton = nameSpan.parentElement.nextElementSibling.querySelector('.btn-warning');
+
+            saveButton.textContent = 'แก้ไข';
+            saveButton.classList.remove('btn-success');
+            saveButton.classList.add('btn-secondary');
+            saveButton.onclick = function(event) {
+                editUser(index, event);
+            };
+
+            cancelButton.textContent = 'ลบ';
+            cancelButton.classList.remove('btn-warning');
+            cancelButton.classList.add('btn-danger');
+            cancelButton.onclick = function(event) {
+                deleteUser(index, event);
+            };
+        }
+
+        function cancelEdit(index, event) {
+            event.preventDefault();
+            const nameSpan = document.getElementById(`name-${index}`);
+            const idCardSpan = document.getElementById(`id_card-${index}`);
+            const phoneSpan = document.getElementById(`phone-${index}`);
+
+            nameSpan.contentEditable = false;
+            idCardSpan.contentEditable = false;
+            phoneSpan.contentEditable = false;
+
+            // Remove the edit mode class
+            nameSpan.classList.remove("editable");
+            idCardSpan.classList.remove("editable");
+            phoneSpan.classList.remove("editable");
+
+            // Change the Cancel button back to Delete button
+            const cancelButton = nameSpan.parentElement.nextElementSibling.querySelector('.btn-warning');
+            const saveButton = nameSpan.parentElement.nextElementSibling.querySelector('.btn-success');
+
+            cancelButton.textContent = 'ลบ';
+            cancelButton.classList.remove('btn-warning');  
+            saveButton.classList.remove('btn-success');
+            saveButton.classList.add('btn-secondary');
+            saveButton.onclick = function(event) {
+                editUser(index, event);
+            };
+        }
+
+        function deleteUser(index, event) {
+            event.preventDefault();
+            const userElement = document.getElementById(`user-${index}`);
+            userElement.remove();
+        }
+    </script>
+
+    <style>
+        .editable {
+            border: 1px solid #ced4da;
+            padding: 2px;
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <title>Homepage</title>
+    <link rel="stylesheet" href="/static/cssmfu.css">
+    <style>
+        .editable {
+            border: 1px solid #ced4da;
+            padding: 2px;
+        }
+    </style>
+</head>
+
+<body id="bodybg">
+    <nav class="navbar navbar-expand-sm bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand"><img src="/static/mfu.gif" alt=""></a>
+            <div>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="collapsibleNavbar">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Username</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="but" href="/login-1.html" role="button">Log out</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex-container">
+        <div class="flex-item-left">
+            <p id="link2"><a id="link3">สร้าง SSID</a></p>
+            <p id="link1"><a href="/history" id="link">ประวัติการสร้าง SSID</a></p>
+        </div>
+        <div class="flex-item-right">
+            <div id="config1"><button data-bs-toggle="modal" data-bs-target="#myModal1" id="config2">แบบไม่มีรหัสผ่าน</button></div>
+            <div id="config1"><button data-bs-toggle="modal" data-bs-target="#myModal" id="config3">แบบรหัสผ่านร่วมกัน</button></div>
+            <div id="config1"><button data-bs-toggle="modal" data-bs-target="#myModal2" id="config4">แบบรายบุคคล</button></div>
+        </div>
+    </div>
+
+    <!-- Modal1 -->
+    <div class="modal fade" id="myModal1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" style="text-align: center;">แบบไม่มีรหัสผ่าน</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="card-body pt-0" id="evnt">
+                            <center><input type="text" id="ssid1" placeholder="โปรดระบุชื่่อ SSID"></center>
+                            <center><input type="text" id="event1" placeholder="โปรดระบุชื่อกิจกรรม"></center>
+                            <center>
+                                <select id="location1">
+                                    <option value="" selected disabled>โปรดเลือกสถานที่</option>
+                                    <option value="AS">AS</option>
+                                    <option value="ap2">AP2</option>
+                                </select>
+                            </center>
+                            <input type="button" data-bs-dismiss="modal" value="ถัดไป" onclick="configureSSID1()" id="butsub">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" style="text-align: center;">แบบรหัสผ่านร่วมกัน</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="card-body pt-0" id="evnt">
+                            <center><input type="text" id="ssid" placeholder="โปรดระบุชื่่อ SSID"></center>
+                            <center><input type="text" id="event" placeholder="โปรดระบุชื่อกิจกรรม"></center>
+                            <center><input type="password" name="password" id="password" placeholder="โปรดระบุรหัสผ่าน"></center>
+                            <center><input type="password" name="confirmPassword" id="confirmPassword" placeholder="ยืนยันรหัสผ่าน"></center>
+                            <center>
+                                <select id="location">
+                                    <option value="" selected disabled>โปรดเลือกสถานที่</option>
+                                    <option value="AS">AS</option>
+                                    <option value="ap2">AP2</option>
+                                </select>
+                            </center>
+                            <input type="button" data-bs-dismiss="modal" value="ถัดไป" onclick="configureSSID()" id="butsub">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal2 -->
+    <div class="modal fade" id="myModal2">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" style="text-align: center;">แบบรายบุคคล</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="ssidForm2" enctype="multipart/form-data" onsubmit="event.preventDefault();">
+                        <div class="row d-flex justify-content-center">
+                            <div class="col-md-6">
+                                <div class="card-body pt-0" id="evnt">
+                                    <input type="text" class="form-control mb-2" id="ssid2" placeholder="โปรดระบุชื่่อ SSID">
+                                    <input type="text" class="form-control mb-2" id="event2" placeholder="โปรดระบุชื่อกิจกรรม">
+                                    <select id="location2" class="form-select mb-2">
+                                        <option value="" selected disabled>โปรดเลือกสถานที่</option>
+                                        <option value="AS">AS</option>
+                                        <option value="ap2">AP2</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="file-upload-container mb-3">
+                                    <input type="file" id="csvFile" name="csvFile" accept=".csv" class="form-control">
+                                </div>
+                                <div class="user-list" id="userList" style="overflow-y:auto; max-height: 200px;">
+                                    <!-- This div will contain the user list -->
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-center mt-3">
+                                <input type="button" data-bs-dismiss="modal" value="ถัดไป" onclick="configureSSID2()" id="butsub" class="btn btn-primary">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+       let users = [];
+
+function configureSSID1() {
+    const ssid1 = document.getElementById("ssid1").value;
+    const event1 = document.getElementById("event1").value;
+    const location1 = document.getElementById("location1").value;
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            alert("SSID configuration successful!");
+            window.location.href = "/history";
+        }
+    };
+    xhttp.open("POST", "/configure_ssid1", true);
+    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhttp.send(`ssid1=${ssid1}&event1=${event1}&location1=${location1}`);
+}
+
+function configureSSID() {
+    const ssid = document.getElementById("ssid").value;
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+    const event = document.getElementById("event").value;
+    const location = document.getElementById("location").value;
+
+    if (password !== confirmPassword) {
+        alert("รหัสผ่านไม่เหมือนกัน");
+        return false;
+    } else {
+        const xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                alert("SSID configuration successful!");
+                window.location.href = "/history";
+            }
+        };
+        xhttp.open("POST", "/configure_ssid", true);
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhttp.send(`ssid=${ssid}&password=${password}&event=${event}&location=${location}`);
+        return true;
+    }
+}
+
+function configureSSID2() {
+    const csvContent = users.map(user => `${user.idCard},${user.name},${user.phone},${user.email}`).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const formData = new FormData();
+    formData.append("ssid2", document.getElementById("ssid2").value);
+    formData.append("event2", document.getElementById("event2").value);
+    formData.append("location2", document.getElementById("location2").value);
+    formData.append("csvFile", blob);
+
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            alert("SSID configuration successful!");
+        }
+    };
+    xhttp.open("POST", "/configure_ssid2", true);
+    xhttp.send(formData);
+}
+
+document.getElementById('csvFile').addEventListener('change', function (event) {
+    const file = event.target.files[0];
+    loadUserList(file);
+});
+
+function loadUserList(file) {
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const content = e.target.result;
+            const lines = content.split('\n').filter(line => line.trim());
+            users = lines.slice(1).map((line, index) => { // Skip the header
+                const [idCard, name, phone, email] = line.split(',');
+                return { index, idCard, name, phone, email };
+            });
+            displayUsers();
+        };
+        reader.readAsText(file);
+    }
+}
+
+function displayUsers() {
+    let userList = '<ul class="list-group">';
+    users.forEach(user => {
+        userList += `
+            <li class="list-group-item d-flex justify-content-between align-items-start" id="user-${user.index}">
+                <div class="ms-2 me-auto">
+                    <div class="fw-bold">Name: <span contenteditable="false" id="name-${user.index}">${user.name}</span>, </div>
+                    ID Card: <span contenteditable="false" id="id_card-${user.index}">${user.idCard}</span><br>
+                   
+                    Phone: <span contenteditable="false" id="phone-${user.index}">${user.phone}</span>, <br>
+                    Email: <span contenteditable="false" id="email-${user.index}">${user.email}</span>
+                </div>
+                <span>
+                    <button class="btn btn-warning btn-sm me-2" onclick="editUser(${user.index})">แก้ไข</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteUser(${user.index})">ลบ</button>
+                </span>
+            </li>`;
+    });
+    userList += '</ul>';
+    document.getElementById('userList').innerHTML = userList;
+}
+
+function editUser(index) {
+    const editButton = document.querySelector(`#user-${index} .btn-warning`);
+    const cancelButton = document.querySelector(`#user-${index} .btn-danger`);
+
+    if (editButton.textContent === "แก้ไข") {
+        editButton.textContent = "ตกลง";
+        editButton.classList.remove('btn-warning');
+        editButton.classList.add('btn-success');
+        cancelButton.textContent = "ยกเลิก";
+        cancelButton.classList.remove('btn-danger');
+        cancelButton.classList.add('btn-secondary');
+
+        const idCardSpan = document.getElementById(`id_card-${index}`);
+        const nameSpan = document.getElementById(`name-${index}`);
+        const phoneSpan = document.getElementById(`phone-${index}`);
+        const emailSpan = document.getElementById(`email-${index}`);
+        [idCardSpan, nameSpan, phoneSpan, emailSpan].forEach(span => {
+            span.contentEditable = true;
+            span.classList.add("editable");
+        });
+
+        editButton.onclick = function () {
+            saveChanges(index);
+        };
+
+        cancelButton.onclick = function () {
+            revertUser(index);
+        };
+    } else {
+        saveChanges(index);
+    }
+}
+
+function saveChanges(index) {
+    const user = users.find(user => user.index === index);
+    if (user) {
+        const idCardSpan = document.getElementById(`id_card-${index}`);
+        const nameSpan = document.getElementById(`name-${index}`);
+        const phoneSpan = document.getElementById(`phone-${index}`);
+        const emailSpan = document.getElementById(`email-${index}`);
+
+        user.idCard = idCardSpan.textContent;
+        user.name = nameSpan.textContent;
+        user.phone = phoneSpan.textContent;
+        user.email = emailSpan.textContent;
+
+        revertUser(index);
+        displayUsers();
+    }
+}
+
+function revertUser(index) {
+    const editButton = document.querySelector(`#user-${index} .btn-success`);
+    const cancelButton = document.querySelector(`#user-${index} .btn-secondary`);
+
+    editButton.textContent = "แก้ไข";
+    editButton.classList.remove('btn-success');
+    editButton.classList.add('btn-warning');
+    cancelButton.textContent = "ลบ";
+    cancelButton.classList.remove('btn-secondary');
+    cancelButton.classList.add('btn-danger');
+
+    const idCardSpan = document.getElementById(`id_card-${index}`);
+    const nameSpan = document.getElementById(`name-${index}`);
+    const phoneSpan = document.getElementById(`phone-${index}`);
+    const emailSpan = document.getElementById(`email-${index}`);
+    [idCardSpan, nameSpan, phoneSpan, emailSpan].forEach(span => {
+        span.contentEditable = false;
+        span.classList.remove("editable");
+    });
+
+    editButton.onclick = function () {
+        editUser(index);
+    };
+
+    cancelButton.onclick = function () {
+        deleteUser(index);
+    };
+}
+
+function deleteUser(index) {
+    users = users.filter(user => user.index !== index);
+    displayUsers();
+}
+
+    </script>
+</body>
+
+</html>
