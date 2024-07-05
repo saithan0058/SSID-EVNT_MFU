@@ -1,21 +1,31 @@
-<!-- templates/history.html -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WI-FI System</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/cssmfu.css" />
+    <link rel="stylesheet" href="/static/css/dropdown-menu.css">
     <link
       rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
     />
-    <link rel="stylesheet" href="/templates/navbar.html" />
     <link rel="stylesheet" href="/static/css/cssmfu.css" />
+    <link rel="stylesheet" href="/static/css/dropdown-menu.css" />
   </head>
   <style>
-    /* Custom CSS for centering content */
+    body,
+    html {
+      height: 100%;
+      font-family: Arial, sans-serif;
+    }
     .content-container {
-      margin-top: 20px; /* Adjust margin as needed */
+      padding: 20px;
+    }
+    .table-striped tbody tr:nth-of-type(odd) {
+      background-color: rgba(0, 0, 0, 0.05);
     }
   </style>
   <body style="background-image: url(/static/images/mfubg_fill.png)">
@@ -46,6 +56,7 @@
           </tr>
         </thead>
         <tbody>
+          <!-- Add rows here -->
           <tr>
             <td><input type="checkbox" /></td>
             <td>1</td>
@@ -55,7 +66,6 @@
             <td>XXXX</td>
             <td>ON</td>
           </tr>
-          <!-- Add more rows as needed -->
         </tbody>
       </table>
       <nav>
@@ -73,8 +83,35 @@
       </nav>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+      // JavaScript for handling search functionality
+      document
+        .querySelector(".input-group-append")
+        .addEventListener("click", function () {
+          var searchQuery = document.querySelector(".form-control").value;
+          console.log("Searching for:", searchQuery);
+          // Further code to handle the search logic
+        });
+
+
+
+
+
+
+
+
+
+        document.getElementById('logout-link').addEventListener('mouseover', function(e) {
+    const maxDistance = 300; // สามารถปรับตำแหน่งได้สูงสุด 100px จากตำแหน่งเดิม
+    // สร้างค่าสุ่มสำหรับแกน y
+    let randomY = Math.random() * maxDistance;
+    // สร้างค่าสุ่มสำหรับแกน x แต่ให้เป็นค่าลบเพื่อไม่ให้ขยับไปทางขวา
+    let randomX = Math.random() * -maxDistance;
+    this.style.transform = `translate(${randomX}px, ${randomY}px)`;
+});
+    </script>
   </body>
 </html>
