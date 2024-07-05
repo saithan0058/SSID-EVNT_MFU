@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WI-FI System</title>
@@ -26,21 +26,29 @@
     }
     .table-striped tbody tr:nth-of-type(odd) {
       background-color: rgba(0, 0, 0, 0.05);
+
     }
-  </style>
-  <body style="background-image: url(/static/images/mfubg_fill.png)">
+    .content-container {
+        padding: 20px;
+    }
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: rgba(0,0,0,.05);
+    }
+</style>
+<body style="background-image: url(/static/images/mfubg_fill.png)">
     {% include 'navbar.html' %}
 
     <div class="container content-container">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3>History</h3>
-        <div class="input-group" style="width: 300px">
-          <input type="text" class="form-control" placeholder="Search..." />
-          <div class="input-group-append">
-            <button class="btn btn-outline-secondary" type="button">
-              <i class="fa fa-search"></i>
-            </button>
-          </div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3>History</h3>
+            <div class="input-group" style="width: 300px">
+                <input type="text" class="form-control" placeholder="Search..." />
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
         </div>
       </div>
       <table class="table table-striped table-hover">
@@ -81,6 +89,7 @@
           </li>
         </ul>
       </nav>
+
     </div>
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
@@ -114,4 +123,5 @@
 });
     </script>
   </body>
+
 </html>
