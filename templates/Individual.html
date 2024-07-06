@@ -1,363 +1,210 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <title>WI-FI System</title>
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
-    />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" />
     <link rel="stylesheet" href="/static/css/cssmfu.css" />
     <link rel="stylesheet" href="/static/css/dropdown-menu.css" />
     <style>
-      body,
-      html {
-        height: 100%;
-        font-family: Arial, sans-serif;
-      }
-      .content-container {
-        padding: 50%;
-      }
-      .next-btn {
-        background-color: transparent;
-        background-image: none;
-        border: 1px solid #a83c30;
-        border-radius: 21px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        color: #a83c30;
-        cursor: pointer;
-        display: inline-block;
-        font-size: 15px;
-        font-weight: 400;
-        height: 30px;
-        padding: 0 20px;
-        line-height: 1.5;
-        text-align: center;
-        transition: all 0.3s;
-      }
-      .next-btn:hover {
-        background-color: #a83c30;
-        color: #ffffff;
-      }
-      .form-control {
-        padding: 10px;
-        border-radius: 5px;
-        font-size: 16px;
-      }
-      .card-header {
-        font-size: 15px;
-        font-weight: bold;
-        background: none;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-      }
-      .close-button {
-        color: #000;
-        font-size: 20px;
-      }
-      .table-striped tbody tr:nth-of-type(odd) {
-        background-color: rgba(0, 0, 0, 0.05);
-      }
-      .card {
-        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-        transition: 0.3s;
-        border-radius: 5px;
-        margin-top: 20px;
-        max-width: 900px;
-        margin: 0 auto;
-      }
-      .card:hover {
-        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
-      }
+        .editable {
+            border: 1px solid #ced4da;
+            padding: 2px;
+        }
     </style>
   </head>
   <body style="background-image: url(/static/images/mfubg_fill.png)">
     {% include 'navbar.html' %}
-    <div class="container">
-      <div class="card">
-        <div class="card-header">Individual form</div>
-        <div class="card-body">
-          <form
-            id="ssidForm2"
-            enctype="multipart/form-data"
-            onsubmit="event.preventDefault();"
-          >
-            <div class="row">
-              <div class="col-md-6">
-                <div id="evnt">
-                  <input
-                    type="text"
-                    class="form-control mb-2"
-                    id="ssid2"
-                    placeholder="โปรดระบุชื่่อ SSID"
-                  />
-                  <input
-                    type="text"
-                    class="form-control mb-2"
-                    id="event2"
-                    placeholder="โปรดระบุชื่อกิจกรรม"
-                  />
-                  <select id="location2" class="form-select mb-2">
-                    <option value="" selected disabled>โปรดเลือกสถานที่</option>
-                    <option value="AS">AS</option>
-                    <option value="ap2">AP2</option>
-                  </select>
-                </div>
-              </div>
-              <div class="col">
-                <div class="file-upload-container mb-3">
-                  <input
-                    type="file"
-                    id="csvFile"
-                    name="csvFile"
-                    accept=".csv"
-                    class="form-control"
-                  />
-                </div>
-                <div
-                  class="user-list"
-                  id="userList"
-                  style="overflow-y: auto; max-height: 200px"
-                >
-                  <!-- This div will contain the user list -->
-                </div>
-              </div>
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header text-center">
+                <h4>individual</h4>
             </div>
-          </form>
+            <div class="card-body">
+                <form id="ssidForm2" enctype="multipart/form-data" onsubmit="event.preventDefault();">
+                    <div class="row d-flex justify-content-center">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control mb-2" id="ssid2" placeholder="Please specify SSID name.">
+                            <input type="text" class="form-control mb-2" id="event2" placeholder="Please specify the name of the activity.">
+                            <select id="location2" class="form-select mb-2">
+                                <option value="" selected disabled>Select location</option>
+                                <option value="AS">AS</option>
+                                <option value="ap2">AP2</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="file-upload-container mb-3">
+                                <input type="file" id="csvFile" name="csvFile" accept=".csv" class="form-control">
+                            </div>
+                            <div class="user-list" id="userList" style="overflow-y: auto; max-height: 200px;">
+                                <!-- This div will contain the user list -->
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <button type="button" onclick="configureSSID2()" class="btn btn-primary">Configure SSID</button>
+            </div>
         </div>
-        <div class="card-footer">
-          <button type="button" class="next-btn">Next</button>
-        </div>
-      </div>
     </div>
+
+
+
+    <!-- เรียกใช้navbar -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
       let users = [];
 
-      function configureSSID1() {
-        const ssid1 = document.getElementById("ssid1").value;
-        const event1 = document.getElementById("event1").value;
-        const location1 = document.getElementById("location1").value;
-        const xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function () {
-          if (this.readyState === 4 && this.status === 200) {
-            alert("SSID configuration successful!");
-            window.location.href = "/history";
-          }
-        };
-        xhttp.open("POST", "/configure_ssid1", true);
-        xhttp.setRequestHeader(
-          "Content-type",
-          "application/x-www-form-urlencoded"
-        );
-        xhttp.send(`ssid1=${ssid1}&event1=${event1}&location1=${location1}`);
-      }
-
-      function configureSSID() {
-        const ssid = document.getElementById("ssid").value;
-        const password = document.getElementById("password").value;
-        const confirmPassword =
-          document.getElementById("confirmPassword").value;
-        const event = document.getElementById("event").value;
-        const location = document.getElementById("location").value;
-
-        if (password !== confirmPassword) {
-          alert("รหัสผ่านไม่เหมือนกัน");
-          return false;
-        } else {
-          const xhttp = new XMLHttpRequest();
-          xhttp.onreadystatechange = function () {
-            if (this.readyState === 4 && this.status === 200) {
-              alert("SSID configuration successful!");
-              window.location.href = "/history";
-            }
-          };
-          xhttp.open("POST", "/configure_ssid", true);
-          xhttp.setRequestHeader(
-            "Content-type",
-            "application/x-www-form-urlencoded"
-          );
-          xhttp.send(
-            `ssid=${ssid}&password=${password}&event=${event}&location=${location}`
-          );
-          return true;
-        }
-      }
-
-      function configureSSID2() {
-        const csvContent = users
-          .map(
-            (user) => `${user.idCard},${user.name},${user.phone},${user.email}`
-          )
-          .join("\n");
-        const blob = new Blob([csvContent], {
-          type: "text/csv;charset=utf-8;",
-        });
-        const formData = new FormData();
-        formData.append("ssid2", document.getElementById("ssid2").value);
-        formData.append("event2", document.getElementById("event2").value);
-        formData.append(
-          "location2",
-          document.getElementById("location2").value
-        );
-        formData.append("csvFile", blob);
-
-        const xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function () {
-          if (this.readyState === 4 && this.status === 200) {
-            alert("SSID configuration successful!");
-          }
-        };
-        xhttp.open("POST", "/configure_ssid2", true);
-        xhttp.send(formData);
-      }
-
-      document
-        .getElementById("csvFile")
-        .addEventListener("change", function (event) {
+      document.getElementById('csvFile').addEventListener('change', function (event) {
           const file = event.target.files[0];
           loadUserList(file);
-        });
+      });
 
       function loadUserList(file) {
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = function (e) {
-            const content = e.target.result;
-            const lines = content.split("\n").filter((line) => line.trim());
-            users = lines.slice(1).map((line, index) => {
-              // Skip the header
-              const [idCard, name, phone, email] = line.split(",");
-              return { index, idCard, name, phone, email };
-            });
-            displayUsers();
-          };
-          reader.readAsText(file);
-        }
+          if (file) {
+              const reader = new FileReader();
+              reader.onload = function (e) {
+                  const content = e.target.result;
+                  const lines = content.split('\n').filter(line => line.trim());
+                  users = lines.slice(1).map((line, index) => {
+                      const [idCard, name, phone, email] = line.split(',');
+                      return { index, idCard, name, phone, email };
+                  });
+                  displayUsers();
+              };
+              reader.readAsText(file);
+          }
       }
 
       function displayUsers() {
-        let userList = '<ul class="list-group">';
-        users.forEach((user) => {
-          userList += `
-           <li class="list-group-item d-flex justify-content-between align-items-start" id="user-${user.index}">
-               <div class="ms-2 me-auto">
-                   <div class="fw-bold">Name: <span contenteditable="false" id="name-${user.index}">${user.name}</span>, </div>
-                   ID Card: <span contenteditable="false" id="id_card-${user.index}">${user.idCard}</span><br>
-                  
-                   Phone: <span contenteditable="false" id="phone-${user.index}">${user.phone}</span>, <br>
-                   Email: <span contenteditable="false" id="email-${user.index}">${user.email}</span>
-               </div>
-               <span>
-                   <button class="btn btn-warning btn-sm me-2" onclick="editUser(${user.index})">แก้ไข</button>
-                   <button class="btn btn-danger btn-sm" onclick="deleteUser(${user.index})">ลบ</button>
-               </span>
-           </li>`;
-        });
-        userList += "</ul>";
-        document.getElementById("userList").innerHTML = userList;
+          let userList = '<ul class="list-group">';
+          users.forEach(user => {
+              userList += `
+                  <li class="list-group-item d-flex justify-content-between align-items-start" id="user-${user.index}">
+                      <div class="ms-2 me-auto">
+                          <div class="fw-bold">Name: <span contenteditable="false" id="name-${user.index}">${user.name}</span></div>
+                          ID Card: <span contenteditable="false" id="id_card-${user.index}">${user.idCard}</span><br>
+                          Phone: <span contenteditable="false" id="phone-${user.index}">${user.phone}</span><br>
+                          Email: <span contenteditable="false" id="email-${user.index}">${user.email}</span>
+                      </div>
+                      <span>
+                          <button class="btn btn-warning btn-sm me-2" onclick="editUser(${user.index})">แก้ไข</button>
+                          <button class="btn btn-danger btn-sm" onclick="deleteUser(${user.index})">ลบ</button>
+                      </span>
+                  </li>`;
+          });
+          userList += '</ul>';
+          document.getElementById('userList').innerHTML = userList;
       }
 
       function editUser(index) {
-        const editButton = document.querySelector(
-          `#user-${index} .btn-warning`
-        );
-        const cancelButton = document.querySelector(
-          `#user-${index} .btn-danger`
-        );
+          const editButton = document.querySelector(`#user-${index} .btn-warning`);
+          const cancelButton = document.querySelector(`#user-${index} .btn-danger`);
 
-        if (editButton.textContent === "แก้ไข") {
-          editButton.textContent = "ตกลง";
-          editButton.classList.remove("btn-warning");
-          editButton.classList.add("btn-success");
-          cancelButton.textContent = "ยกเลิก";
-          cancelButton.classList.remove("btn-danger");
-          cancelButton.classList.add("btn-secondary");
+          if (editButton.textContent === "แก้ไข") {
+              editButton.textContent = "ตกลง";
+              editButton.classList.remove('btn-warning');
+              editButton.classList.add('btn-success');
+              cancelButton.textContent = "ยกเลิก";
+              cancelButton.classList.remove('btn-danger');
+              cancelButton.classList.add('btn-secondary');
 
-          const idCardSpan = document.getElementById(`id_card-${index}`);
-          const nameSpan = document.getElementById(`name-${index}`);
-          const phoneSpan = document.getElementById(`phone-${index}`);
-          const emailSpan = document.getElementById(`email-${index}`);
-          [idCardSpan, nameSpan, phoneSpan, emailSpan].forEach((span) => {
-            span.contentEditable = true;
-            span.classList.add("editable");
-          });
+              const idCardSpan = document.getElementById(`id_card-${index}`);
+              const nameSpan = document.getElementById(`name-${index}`);
+              const phoneSpan = document.getElementById(`phone-${index}`);
+              const emailSpan = document.getElementById(`email-${index}`);
+              [idCardSpan, nameSpan, phoneSpan, emailSpan].forEach(span => {
+                  span.contentEditable = true;
+                  span.classList.add("editable");
+              });
 
-          editButton.onclick = function () {
-            saveChanges(index);
-          };
+              editButton.onclick = function () {
+                  saveChanges(index);
+              };
 
-          cancelButton.onclick = function () {
-            revertUser(index);
-          };
-        } else {
-          saveChanges(index);
-        }
+              cancelButton.onclick = function () {
+                  revertUser(index);
+              };
+          } else {
+              saveChanges(index);
+          }
       }
 
       function saveChanges(index) {
-        const user = users.find((user) => user.index === index);
-        if (user) {
+          const user = users.find(user => user.index === index);
+          if (user) {
+              const idCardSpan = document.getElementById(`id_card-${index}`);
+              const nameSpan = document.getElementById(`name-${index}`);
+              const phoneSpan = document.getElementById(`phone-${index}`);
+              const emailSpan = document.getElementById(`email-${index}`);
+
+              user.idCard = idCardSpan.textContent;
+              user.name = nameSpan.textContent;
+              user.phone = phoneSpan.textContent;
+              user.email = emailSpan.textContent;
+
+              revertUser(index);
+              displayUsers();
+          }
+      }
+
+      function revertUser(index) {
+          const editButton = document.querySelector(`#user-${index} .btn-success`);
+          const cancelButton = document.querySelector(`#user-${index} .btn-secondary`);
+
+          editButton.textContent = "แก้ไข";
+          editButton.classList.remove('btn-success');
+          editButton.classList.add('btn-warning');
+          cancelButton.textContent = "ลบ";
+          cancelButton.classList.remove('btn-secondary');
+          cancelButton.classList.add('btn-danger');
+
           const idCardSpan = document.getElementById(`id_card-${index}`);
           const nameSpan = document.getElementById(`name-${index}`);
           const phoneSpan = document.getElementById(`phone-${index}`);
           const emailSpan = document.getElementById(`email-${index}`);
+          [idCardSpan, nameSpan, phoneSpan, emailSpan].forEach(span => {
+              span.contentEditable = false;
+              span.classList.remove("editable");
+          });
 
-          user.idCard = idCardSpan.textContent;
-          user.name = nameSpan.textContent;
-          user.phone = phoneSpan.textContent;
-          user.email = emailSpan.textContent;
+          editButton.onclick = function () {
+              editUser(index);
+          };
 
-          revertUser(index);
-          displayUsers();
-        }
-      }
-
-      function revertUser(index) {
-        const editButton = document.querySelector(
-          `#user-${index} .btn-success`
-        );
-        const cancelButton = document.querySelector(
-          `#user-${index} .btn-secondary`
-        );
-
-        editButton.textContent = "แก้ไข";
-        editButton.classList.remove("btn-success");
-        editButton.classList.add("btn-warning");
-        cancelButton.textContent = "ลบ";
-        cancelButton.classList.remove("btn-secondary");
-        cancelButton.classList.add("btn-danger");
-
-        const idCardSpan = document.getElementById(`id_card-${index}`);
-        const nameSpan = document.getElementById(`name-${index}`);
-        const phoneSpan = document.getElementById(`phone-${index}`);
-        const emailSpan = document.getElementById(`email-${index}`);
-        [idCardSpan, nameSpan, phoneSpan, emailSpan].forEach((span) => {
-          span.contentEditable = false;
-          span.classList.remove("editable");
-        });
-
-        editButton.onclick = function () {
-          editUser(index);
-        };
-
-        cancelButton.onclick = function () {
-          deleteUser(index);
-        };
+          cancelButton.onclick = function () {
+              deleteUser(index);
+          };
       }
 
       function deleteUser(index) {
-        users = users.filter((user) => user.index !== index);
-        displayUsers();
+          users = users.filter(user => user.index !== index);
+          displayUsers();
       }
-    </script>
+
+
+      function configureSSID2() {
+  const formData = new FormData(document.getElementById('ssidForm2'));
+  const xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+          // Handle response here
+          alert("SSID configuration successful!");
+          window.location.href = "/history";
+      }
+  };
+  xhttp.open("POST", "/configure_ssid2", true);
+  xhttp.send(formData);
+}
+
+  </script>
   </body>
 </html>
