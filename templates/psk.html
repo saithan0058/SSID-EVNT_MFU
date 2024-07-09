@@ -9,7 +9,7 @@
     <title>WI-FI System</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" />
-    <link rel="stylesheet" href="/static/css/cssmfu.css" />
+    <!-- <link rel="stylesheet" href="/static/css/cssmfu.css" /> -->
     <link rel="stylesheet" href="/static/css/dropdown-menu.css" />
     <link rel="stylesheet" href="/static/css/background.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
@@ -24,45 +24,45 @@
         <div class="card-body">
           <form>
             <div>
-              <label for="ssidName" class="form-label"></label>
+              <label for="ssid" class="form-label"></label>
               <input
                 type="text"
                 class="form-control"
-                id="ssidName"
+                id="ssid"
                 placeholder="Please specify SSID name"
               />
             </div>
             <div>
-              <label for="activityName" class="form-label"></label>
+              <label for="event" class="form-label"></label>
               <input
                 type="text"
                 class="form-control"
-                id="activityName"
+                id="event"
                 placeholder="Please specify the activity name"
               />
             </div>
             <div class="">
-              <label for="activityName" class="form-label"></label>
+              <label for="password" class="form-label"></label>
               <input
                 type="password"
                 class="form-control"
-                id="activityName"
+                id="password"
                 placeholder="Please provide password"
               />
             </div>
             <div class="mb-3">
-              <label for="activityName" class="form-label"></label>
+              <label for="confirmPassword" class="form-label"></label>
               <input
                 type="password"
                 class="form-control"
-                id="activityName"
+                id="confirmPassword"
                 placeholder="Confirm Password"
               />
             </div>
             <div class="">
               <select class="form-select" id="location">
                 <option selected disabled>Please select a location</option>
-                <option value="1">Location 1</option>
+                <option value="AS">AS</option>
                 <option value="2">Location 2</option>
                 <option value="3">Location 3</option>
               </select>
@@ -75,7 +75,7 @@
           </form>
         </div>
         <div class="card-footer">
-          <button type="button" class="next-btn">Next</button>
+          <button type="button" class="next-btn" onclick="configureSSID()">Next</button>
         </div>
       </div>
     </div>
@@ -85,7 +85,32 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/moment/min/moment.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-<SCript> $(document).ready(function() {
+<SCript>
+ function configureSSID() {
+        const ssid = document.getElementById("ssid").value;
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+        const event = document.getElementById("event").value;
+        const location = document.getElementById("location").value;
+
+        if (password !== confirmPassword) {
+            alert("รหัสผ่านไม่เหมือนกัน");
+            return false;
+        } else {
+            const xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    alert("SSID configuration successful!");
+                    window.location.href = "/history";
+                }
+            };
+            xhttp.open("POST", "/configure_ssid", true);
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.send(`ssid=${ssid}&password=${password}&event=${event}&location=${location}`);
+            return true;
+        }
+    }
+$(document).ready(function() {
   $('#dateRange').daterangepicker({
       autoUpdateInput: false,
       locale: {

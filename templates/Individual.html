@@ -65,6 +65,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         let users = [];
+        let selectedDateRange = '';
 
         document.getElementById('csvFile').addEventListener('change', function (event) {
             const file = event.target.files[0];
@@ -72,22 +73,26 @@
         });
 
         $(document).ready(function() {
-            $('#dateRange').daterangepicker({
-                autoUpdateInput: false,
-                locale: {
-                    cancelLabel: 'Clear',
-                    format: 'MM/DD/YYYY'
-                }
-            });
+    $('#dateRange').daterangepicker({
+        autoUpdateInput: false,
+        locale: {
+            cancelLabel: 'Clear',
+            format: 'MM/DD/YYYY'
+        }
+    });
 
-            $('#dateRange').on('apply.daterangepicker', function(ev, picker) {
-                $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
-            });
+    $('#dateRange').on('apply.daterangepicker', function(ev, picker) {
+        $(this).val(picker.startDate.format('MM/DD/YYYY') + ' - ' + picker.endDate.format('MM/DD/YYYY'));
+        selectedDateRange = $(this).val();
+        console.log(selectedDateRange)
+    });
 
-            $('#dateRange').on('cancel.daterangepicker', function(ev, picker) {
-                $(this).val('');
-            });
-        });
+    $('#dateRange').on('cancel.daterangepicker', function(ev, picker) {
+        $(this).val('');
+        selectedDateRange = '';
+    });
+});
+
 
         function loadUserList(file) {
             if (file) {

@@ -161,6 +161,7 @@ def history():
     return render_template("/history.html", documents=documents)
 
 
+
 @app.route("/configure_ssid1", methods=["POST"])  # ไม่มีรหัสผ่าน
 def configure_ssid1():
     ssid1 = request.form["ssid1"]
@@ -236,88 +237,89 @@ def configure_ssid1():
     net_connect.disconnect()
 
     return redirect(url_for("history"))
-
-
+    
 @app.route("/configure_ssid", methods=["POST"])  # รหัสผ่านร่วมกัน
 def configure_ssid():
-    ssid = request.form["ssid"]
-    password = request.form["password"]
-    event = request.form["event"]
-    location = request.form["location"]
-    post(ssid, event, location)
+    try:
+        ssid = request.form["ssid"]
+        password = request.form["password"]
+        event = request.form["event"]
+        location = request.form["location"]
+        logging.debug(f"Received data - SSID: {ssid}, Event: {event}, Location: {location}")
 
-    device = {
-        "device_type": "cisco_ios",
-        "ip": "172.30.99.56",
-        "username": "admin",
-        "password": "CITS@WLC2023",
-        "secret": "CITS@WLC2023",
-    }
+        device = {
+            "device_type": "cisco_ios",
+            "ip": "172.30.99.56",
+            "username": "admin",
+            "password": "CITS@WLC2023",
+            "secret": "CITS@WLC2023",
+              
+        }
 
-    # Connect to the Cisco device
-    net_connect = ConnectHandler(**device)
-    oo = net_connect.enable()
-    # Send the command
-    print(oo)
+        # Connect to the Cisco device
+        net_connect = ConnectHandler(**device)
+        net_connect.enable()
+        logging.debug("Connected to Cisco device")
 
-    output = net_connect.send_command("show wlan summary")
+        # Retrieve WLAN summary
+        output = net_connect.send_command("show wlan summary")
+        logging.debug(f"WLAN summary output: {output}")
 
-    wlan_ids = []
-    lines = output.splitlines()
-    print(lines)
-    for line in lines[5:]:
-        if line.strip():
-            match = re.match(r"^\s*(\d+)", line)
-            if match:
-                wlan_id = match.group(1)
-                wlan_ids.append(wlan_id)
+        # Extract WLAN IDs
+        wlan_ids = []
+        lines = output.splitlines()
+        for line in lines[5:]:
+            if line.strip():
+                match = re.match(r"^\s*(\d+)", line)
+                if match:
+                    wlan_id = match.group(1)
+                    wlan_ids.append(wlan_id)
+        logging.debug(f"Extracted WLAN IDs: {wlan_ids}")
 
-    # Print the WLAN IDs
-    for wlan_id in wlan_ids:
-        print(wlan_id)
+        # Initialize array for existing WLAN IDs
+        existing_array = [None] * 15
+        for i in range(len(wlan_ids)):
+            existing_array[i] = wlan_ids[i]
 
-    existing_array = [None] * 15
+        # Find the next available position
+        next_position = existing_array.index(None)
 
-    # Add the values from wlan_ids to the existing array
-    for i in range(len(wlan_ids)):
-        existing_array[i] = wlan_ids[i]
+        # Generate a unique random WLAN ID
+        random_num = random.randint(1, 16)
+        while str(random_num) in existing_array:
+            random_num = random.randint(1, 16)
 
-    # Print the updated array
-    print(existing_array)
+        # Replace the next available position with the new WLAN ID
+        existing_array[next_position] = str(random_num)
 
-    next_position = existing_array.index(None)
+        # Configuration commands for the new SSID
+        config_commands = [
+            f"wlan {ssid} {random_num} {ssid}",
+            "security ft",
+            f"security wpa psk set-key ascii 0 {password} {password}",
+            "no security wpa akm dot1x",
+            "security wpa akm psk",
+            "security wpa akm ft psk",
+            "no shutdown",
+            "exit",
+            f"wireless tag policy {location}",
+            f"wlan {ssid} policy MFUPolicyProfile1",
+            "end",
+        ]
 
-    # Generate a random number between 1 and 16
-    random_num = random.randint(1, 16)
+        # Send configuration commands to the Cisco device
+        output = net_connect.send_config_set(config_commands)
+        logging.debug(f"Configuration output: {output}")
 
-    # Check if the random number already exists in the array
-    while str(random_num) in existing_array:
-        random_num = random.randint(1, 16)  # Generate a new random number
+        # Disconnect from the Cisco device
+        net_connect.disconnect()
+        logging.debug("Disconnected from Cisco device")
 
-    # Replace the next available position with the random number
-    existing_array[next_position] = str(random_num)
+        return redirect(url_for("history"))
 
-    config_commands = [
-        f"wlan {ssid} {random_num} {ssid}",
-        f"security ft",
-        f"security wpa psk set-key ascii 0 {password} {password}",
-        f"no security wpa akm dot1x",
-        f"security wpa akm psk",
-        f"security wpa akm ft psk",
-        f"no shutdown",
-        f"exit",
-        f"wireless tag policy {location}",
-        f"wlan {ssid} policy MFUPolicyProfile1",
-        f"end",
-    ]
-
-    output = net_connect.send_config_set(config_commands)
-    print(output)
-
-    # Disconnect from the Cisco device
-    net_connect.disconnect()
-
-    return redirect(url_for("history"))
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
+        return "Internal Server Error", 500
 
 @app.route('/handle_data', methods=['POST'])
 def handle_data():
@@ -353,7 +355,6 @@ def handle_data():
 
 @app.route('/configure_ssid2', methods=['POST']) #AAA
 def configure_ssid2():
-
     data = request.get_json()
 
     # Extract specific parts of the data
@@ -362,16 +363,14 @@ def configure_ssid2():
     location2 = data.get('location2')
     ouGroup = data.get('ouGroup')
     users = data.get('users', [])
-    # ssid2 = request.form['ssid2']
-    # event2 = request.form['event2']
-    # location2 = request.form['location2']
-    # ouGroup =request.form['ouGroup']
+    dateRange = data.get('dateRange')  # ดึงค่าวันที่จากคำขอ
 
-    # users = request.get_json()
-    # if not isinstance(users, list):
-    #     return jsonify({"error": "JSON data must be a list of user objects"}), 400
+    # Optional: จัดการกับค่าวันที่ ถ้าจำเป็น
+    if dateRange:
+        start_date, end_date = dateRange.split(' - ')
+        print(f"Start Date: {start_date}, End Date: {end_date}")
+
     post(ssid2, event2, location2, ouGroup, users)
-   
 
     device = {
         'device_type': 'cisco_ios',
@@ -405,8 +404,6 @@ def configure_ssid2():
     
     existing_array = [None] * 15
 
-    # Your code to retrieve WLAN IDs and store them in wlan_ids list
-
     # Add the values from wlan_ids to the existing array
     for i in range(len(wlan_ids)):
         existing_array[i] = wlan_ids[i]
@@ -428,15 +425,15 @@ def configure_ssid2():
 
     config_commands = [
         f'wlan {ssid2} {random_num} {ssid2}',
-        f'no security ft adaptive',
-        f'security dot1x authentication-list list',
-        f'security ft',
-        f'security wpa akm ft dot1x',
-        f'no shutdown',
-        f'exit',
+        'no security ft adaptive',
+        'security dot1x authentication-list list',
+        'security ft',
+        'security wpa akm ft dot1x',
+        'no shutdown',
+        'exit',
         f'wireless tag policy {location2}',
         f'wlan {ssid2} policy MFUPolicyProfile1',
-        f'end',
+        'end',
     ]
 
     output = net_connect.send_config_set(config_commands)
@@ -446,6 +443,7 @@ def configure_ssid2():
     net_connect.disconnect()
 
     return redirect(url_for('history'))
+
 
 
 
