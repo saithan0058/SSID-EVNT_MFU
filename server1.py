@@ -14,6 +14,7 @@ from netmiko import ConnectHandler
 import re
 import io
 import random
+import logging
 from pymongo import MongoClient
 import os
 import csv
@@ -21,6 +22,7 @@ from ldap3 import Server, Connection, ALL, MODIFY_REPLACE, NTLM, SUBTREE, MODIFY
 
 
 current_time = datetime.datetime.now()
+logging.basicConfig(level=logging.DEBUG)  # เพิ่มการตั้งค่าการล็อกเพื่อดูข้อผิดพลาด
 
 # ปรับเปลี่ยนเป็นพุทธศักราช
 buddhist_year = current_time.year + 543
@@ -318,161 +320,247 @@ def configure_ssid():
     return redirect(url_for("history"))
 
 
-@app.route("/configure_ssid2", methods=["POST"])  # แบบรายบุคคล
+@app.route('/configure_ssid2', methods=['POST']) #AAA
 def configure_ssid2():
-    ssid2 = request.form["ssid2"]
-    event2 = request.form["event2"]
-    location2 = request.form["location2"]
-    csv_file = request.files["csvFile"]
+    ssid2 = request.form['ssid2']
+    event2 = request.form['event2']
+    location2 = request.form['location2']
+    ouGroup =request.form['ouGroup']
 
-    try:
-        # Save the event details into the ssid collection
-        ssid_id = post(ssid2, event2, location2)
+    # users = request.get_json()
+    # if not isinstance(users, list):
+    #     return jsonify({"error": "JSON data must be a list of user objects"}), 400
+    post(ssid2, event2, location2, ouGroup)
+   
 
-        # Save CSV file to a directory
-        if not os.path.exists("uploads"):
-            os.makedirs("uploads")
+    device = {
+        'device_type': 'cisco_ios',
+        'ip': '172.30.99.56',
+        'username': 'admin',
+        'password': 'CITS@WLC2023',
+        'secret': 'CITS@WLC2023',
+    }
 
-        csv_filename = os.path.join("uploads", csv_file.filename)
-        csv_file.save(csv_filename)
+    # Connect to the Cisco device
+    net_connect = ConnectHandler(**device)
+    oo = net_connect.enable()
+    # Send the command
+    print(oo)
+    
+    output = net_connect.send_command("show wlan summary")
+    
+    wlan_ids = []
+    lines = output.splitlines()
+    print(lines)
+    for line in lines[5:]:
+        if line.strip():
+            match = re.match(r'^\s*(\d+)', line)
+            if match:
+                wlan_id = match.group(1)
+                wlan_ids.append(wlan_id)
+    
+    # Print the WLAN IDs
+    for wlan_id in wlan_ids:
+        print(wlan_id)
+    
+    existing_array = [None] * 15
 
-        # Connect to the MongoDB server
-        client = MongoClient("mongodb://localhost:27017")
-        db = client["mydb"]
-        history_collection = db["history"]
+    # Your code to retrieve WLAN IDs and store them in wlan_ids list
 
-        # Process CSV file and insert data into MongoDB
-        users = []
-        with open(csv_filename, "r", encoding="utf-8") as file:
-            reader = csv.reader(file)
-            for row in reader:
-                if (
-                    len(row) == 4
-                ):  # Assuming the CSV has 4 columns: ID card number, name, phone number, email
-                    user = {
-                        "ssid_id": ssid_id,
-                        "id_card_number": row[0],
-                        "name": row[1],
-                        "phone_number": row[2],
-                        "email": row[3],
-                    }
-                    users.append(user)
+    # Add the values from wlan_ids to the existing array
+    for i in range(len(wlan_ids)):
+        existing_array[i] = wlan_ids[i]
 
-        # Insert all users into the MongoDB collection
-        if users:
-            history_collection.insert_many(users)
-            logging.info(f"Inserted users: {users}")
-        else:
-            logging.info("No users found in CSV file.")
+    # Print the updated array
+    print(existing_array) 
 
-        device = {
-            "device_type": "cisco_ios",
-            "ip": "172.30.99.56",
-            "username": "admin",
-            "password": "CITS@WLC2023",
-            "secret": "CITS@WLC2023",
-        }
+    next_position = existing_array.index(None)
 
-        # Connect to the Cisco device
-        net_connect = ConnectHandler(**device)
-        net_connect.enable()
+    # Generate a random number between 1 and 16
+    random_num = random.randint(1, 16)
 
-        # Send the command
-        output = net_connect.send_command("show wlan summary")
-        logging.info(output)
+    # Check if the random number already exists in the array
+    while str(random_num) in existing_array:
+        random_num = random.randint(1, 16)  # Generate a new random number
 
-        wlan_ids = []
-        lines = output.splitlines()
-        for line in lines[5:]:
-            if line.strip():
-                match = re.match(r"^\s*(\d+)", line)
-                if match:
-                    wlan_id = match.group(1)
-                    wlan_ids.append(wlan_id)
+    # Replace the next available position with the random number
+    existing_array[next_position] = str(random_num)
 
-        # Print the WLAN IDs
-        for wlan_id in wlan_ids:
-            logging.info(wlan_id)
+    config_commands = [
+        f'wlan {ssid2} {random_num} {ssid2}',
+        f'no security ft adaptive',
+        f'security dot1x authentication-list list',
+        f'security ft',
+        f'security wpa akm ft dot1x',
+        f'no shutdown',
+        f'exit',
+        f'wireless tag policy {location2}',
+        f'wlan {ssid2} policy MFUPolicyProfile1',
+        f'end',
+    ]
 
-        existing_array = [None] * 15
+    output = net_connect.send_config_set(config_commands)
+    print(output)
 
-        # Add the values from wlan_ids to the existing array
-        for i in range(len(wlan_ids)):
-            existing_array[i] = wlan_ids[i]
+    # Disconnect from the Cisco device
+    net_connect.disconnect()
 
-        next_position = existing_array.index(None)
+    return redirect(url_for('history'))
 
-        # Generate a random number between 1 and 16
-        random_num = random.randint(1, 16)
-
-        # Check if the random number already exists in the array
-        while str(random_num) in existing_array:
-            random_num = random.randint(1, 16)  # Generate a new random number
-
-        # Replace the next available position with the random number
-        existing_array[next_position] = str(random_num)
-
-        config_commands = [
-            f"wlan {ssid2} {random_num} {ssid2}",
-            "no security ft adaptive",
-            "security dot1x authentication-list list",
-            "security ft",
-            "security wpa akm ft dot1x",
-            "no shutdown",
-            "exit",
-            f"wireless tag policy {location2}",
-            f"wlan {ssid2} policy MFUPolicyProfile1",
-            "end",
-        ]
-
-        output = net_connect.send_config_set(config_commands)
-        logging.info(output)
-
-        # Disconnect from the Cisco device
-        net_connect.disconnect()
-
-    except Exception as e:
-        logging.error(f"An error occurred: {e}")
-
-    return redirect(url_for("history"))
 
 
 def post(ssid, event, location):
+    
     current_time = datetime.datetime.now()
 
-    # ปรับเปลี่ยนเป็นพุทธศักราช
+# ปรับเปลี่ยนเป็นพุธศักราช
     buddhist_year = current_time.year + 543
 
-    # สร้างวัตถุ datetime ใหม่ที่มีการเปลี่ยนแปลงแล้ว
+# สร้างวัตถุ datetime ใหม่ที่มีการเปลี่ยนแปลงแล้ว
     buddhist_time = current_time.replace(year=buddhist_year)
-    # แสดงวันที่แบบพุทธศักราช
-    formatted_time = buddhist_time.strftime("%Y-%m-%d %H:%M:%S")
-
+# แสดงวันที่แบบพุธศักราช
+    formatted_time = buddhist_time.strftime("%Y-%m-%d %H:%M:%S")    
     # Connect to the MongoDB server
-    client = MongoClient("mongodb://localhost:27017")
+    client = MongoClient('mongodb://localhost:27017')
 
     # Access the database
-    db = client["mydb"]
+    db = client['mydb']
 
     # Access the collection
-    collection = db["ssid"]
+    collection = db['ssid']
 
     # Create a document to insert
     document = {
-        "ssid": ssid,
-        "event": event,
-        "location": location,
-        "time": formatted_time,
+        'ssid': ssid,
+        'event': event,
+        'location': location,              
+        'time': formatted_time,
+        
     }
 
     # Insert the document into the collection
-    result = collection.insert_one(document)
+    collection.insert_one(document)
 
     # Close the MongoDB connection
     client.close()
 
-    # Return the id of the inserted document
-    return result.inserted_id
+def post(ssid1, event1, location1):
+    
+    
+    current_time = datetime.datetime.now()
+
+# ปรับเปลี่ยนเป็นพุธศักราช
+    buddhist_year = current_time.year + 543
+
+# สร้างวัตถุ datetime ใหม่ที่มีการเปลี่ยนแปลงแล้ว
+    buddhist_time = current_time.replace(year=buddhist_year)
+# แสดงวันที่แบบพุธศักราช
+    formatted_time = buddhist_time.strftime("%Y-%m-%d %H:%M:%S")
+    
+    # Connect to the MongoDB server
+    client = MongoClient('mongodb://localhost:27017')
+
+    # Access the database
+    db = client['mydb']
+
+    # Access the collection
+    collection = db['ssid']
+
+    # Create a document to insert
+    document = {
+        'ssid' : ssid1,
+        'event': event1,
+        'location': location1,         
+        'time': formatted_time
+    }
+
+    # Insert the document into the collection
+    collection.insert_one(document)
+
+    # Close the MongoDB connection
+    client.close()
+
+def post(ssid2, event2, location2, ouGroup):
+    
+    
+    current_time = datetime.datetime.now()
+
+# ปรับเปลี่ยนเป็นพุธศักราช
+    buddhist_year = current_time.year + 543
+
+# สร้างวัตถุ datetime ใหม่ที่มีการเปลี่ยนแปลงแล้ว
+    buddhist_time = current_time.replace(year=buddhist_year)
+# แสดงวันที่แบบพุธศักราช
+    formatted_time = buddhist_time.strftime("%Y-%m-%d %H:%M:%S")
+    
+    # Connect to the MongoDB server
+    client = MongoClient('mongodb://localhost:27017')
+
+    # Access the database
+    db = client['mydb']
+
+    # Access the collection
+    collection = db['ssid']
+
+    # Create a document to insert
+    document = {
+        'ssid' : ssid2,
+        'event': event2,
+        'location': location2,          
+        'time': formatted_time,
+        'ouGroup':ouGroup,
+
+    }
+
+    # Insert the document into the collection
+    collection.insert_one(document)
+
+    # Close the MongoDB connection
+    client.close()
+
+@app.route("/update_user", methods=["POST"])
+def update_user():
+    data = request.get_json()
+    id_card = data.get("idcard")
+    name = data.get("name")
+    phone = data.get("phone")
+    email = data.get("email")
+
+    client = MongoClient("mongodb://localhost:27017")
+    db = client["mydb"]
+    collection = db["history"]
+
+    result = collection.update_one(
+        {"id_card_number": id_card},
+        {"$set": {"name": name, "phone_number": phone, "email": email}}
+    )
+
+    if result.modified_count > 0:
+        return jsonify({"status": "success"}), 200
+    else:
+        return jsonify({"status": "failed"}), 400
+
+@app.route("/delete_user/<id_card>", methods=["DELETE"])
+def delete_user(id_card):
+    client = MongoClient("mongodb://localhost:27017")
+    db = client["mydb"]
+    collection = db["history"]
+
+    result = collection.delete_one({"id_card_number": id_card})
+
+    if result.deleted_count > 0:
+        return jsonify({"status": "success"}), 200
+    else:
+        return jsonify({"status": "failed"}), 400
+
+
+
+
+
+
+
+
+
 
 
 @app.route("/delete_ssid/<ssid_id>", methods=["DELETE"])
@@ -659,7 +747,7 @@ def add_usercsv(GroupandOU):
                     "givenName": givenName,
                     "sn": sn,
                     "displayName": displayName,
-                    "userPrincipalName": userPrincipalName,
+                    "userPrincipalName": f"{userPrincipalName}@test.local",
                     "sAMAccountName": sAMAccountName,
                     "userPassword": userpswd,
                     "objectClass": ["top", "person", "organizationalPerson", "user"],
@@ -700,10 +788,129 @@ def add_usercsv(GroupandOU):
 
 # add user in ad ----------------------------------------------------------------------------------------------------
 
+# add user json in ad ----------------------------------------------------------------------------------------------------
+@app.route("/add_userjson/<GroupandOU>", methods=["POST"])  # Add multiple users
+def add_users(GroupandOU):
+    group_dn = f"CN={GroupandOU},OU={GroupandOU},OU=Guest,DC=test,DC=local"
+    try:
+        users = request.get_json()
+        if not isinstance(users, list):
+            return jsonify({"error": "JSON data must be a list of user objects"}), 400
+        
+        results = []
+        for user in users:
+            username = user.get("name")
+            userpswd = user.get("phone")
+            userPrincipalName = user.get("idcard")
+            sAMAccountName = user.get("idcard")
+            userdn = f"CN={username},OU={GroupandOU},OU=Guest,DC=test,DC=local"
+
+            # Connect to LDAP server
+            s = Server(server_address, connect_timeout=5, use_ssl=True, get_info=ALL)
+            c = Connection(s, user="test\\Administrator", password=loginpw, authentication=NTLM)
+
+            if not c.bind():
+                results.append({"username": username, "status": "failure", "message": f"Failed to bind: {c.result['message']}"})
+                continue  # Skip to next user if binding fails
+
+            try:
+                # Create user
+                c.add(
+                    userdn,
+                    attributes={
+                        "cn": username,
+                        "givenName": username,
+                        "sn": username,
+                        "displayName": username,
+                        "userPrincipalName": f"{userPrincipalName}@test.local",
+                        "sAMAccountName": sAMAccountName,
+                        "userPassword": userpswd,  # Replace with desired password
+                        "objectClass": ["top", "person", "organizationalPerson", "user"],
+                    },
+                )
+
+                # Set password
+                c.extend.microsoft.modify_password(userdn, userpswd)
+
+                # Enable user
+                c.modify(userdn, {"userAccountControl": [("MODIFY_REPLACE", 512)]})
+
+                # Set dial-in network access permission to allow access
+                c.modify(userdn, {"msNPAllowDialin": [("MODIFY_REPLACE", [True])]})
+
+                # Add the user to the group
+                c.modify(group_dn, {"member": [("MODIFY_ADD", [userdn])]})
+
+                # Check result
+                if c.result["result"] == 0:
+                    results.append({"username": username, "status": "success"})
+                else:
+                    results.append({"username": username, "status": "failure", "message": f"Failed to add user '{userdn}'. Error: {c.result['message']}"})
+            
+            except Exception as e:
+                results.append({"username": username, "status": "failure", "message": f"Failed to add user: {str(e)}"})
+            
+            finally:
+                c.unbind()
+
+        return jsonify(results), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to process request: {str(e)}"}), 500
+
+# add user json in ad ----------------------------------------------------------------------------------------------------
+
+
+# get ous without users  in ad ----------------------------------------------------------------------------------------------------
+base_dn = f"dc={domain},dc=local"
+guest_dn = f"ou=Guest,{base_dn}"
+# Function to retrieve all OUs within the Guest OU
+def get_ous_in_guest(conn):
+    try:
+        conn.search(guest_dn, '(objectClass=organizationalUnit)', attributes=['ou'])
+        return [entry.entry_dn for entry in conn.entries]
+    except Exception as e:
+        raise Exception(f"Error retrieving OUs in Guest: {str(e)}")
+
+# Function to check if an OU has users
+def has_users(conn, ou_dn):
+    try:
+        conn.search(ou_dn, '(objectClass=person)', search_scope=SUBTREE)
+        return len(conn.entries) > 0
+    except Exception as e:
+        raise Exception(f"Error checking users in OU {ou_dn}: {str(e)}")
+
+@app.route("/getOUcheck", methods=["GET"])
+def get_ou_check():
+    try:
+        server = Server(server_address, connect_timeout=5, use_ssl=True, get_info=ALL)
+        conn = Connection(
+            server,
+            user=f"{domain}\\{loginun}",
+            password=loginpw,
+            authentication=NTLM,
+            auto_bind=True,
+        )
+
+        # Retrieve all OUs within the Guest OU
+        ous_in_guest = get_ous_in_guest(conn)
+
+        # Find OUs within Guest that do not have users
+        ous_without_users = [ou.split(",")[0].split("=")[1] for ou in ous_in_guest if not has_users(conn, ou)]
+
+        # Close LDAP connection
+        conn.unbind()
+
+        # Return JSON response
+        return jsonify(ous_without_users)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# get ous without users  in ad ----------------------------------------------------------------------------------------------------
 
 # get user in ad ----------------------------------------------------------------------------------------------------
-
-
 @app.route("/get_users/<base_dn>", methods=["GET"])  # get user list เช็ครายชื่อในouนั้นๆ
 def get_users(base_dn):
     try:
@@ -796,6 +1003,62 @@ def delete_users(oudn):
 
 # delete user in ad ----------------------------------------------------------------------------------------------------
 
+# add in db ----------------------------------------------------------------------------------------------------
+@app.route("/adduser_mongo", methods=["POST"])
+def add_user_mongo():
+    try:
+        # Parse request data
+        data = request.json
+        
+        # Validate required fields
+        required_fields = ["id","namessid", "evenname", "location", "starttime", "endtime", "users"]
+        for field in required_fields:
+            if field not in data:
+                return jsonify({"error": f"Missing field: {field}"}), 400
+        
+        # Convert starttime and endtime to datetime objects
+        # starttime = datetime.fromisoformat(data["starttime"])
+        # endtime = datetime.fromisoformat(data["endtime"])
+
+        # Construct the document
+        document = {
+            "id": data["id"],
+            "namessid": data["namessid"],
+            "evenname": data["evenname"],
+            "location": data["location"],
+            "starttime": data["starttime"],
+            "endtime": data["endtime"],
+            "users": data["users"]
+        }
+
+        # Insert the document into the collection
+        result = collection.insert_one(document)
+        
+        # Return success response
+        return jsonify({"message": "Document inserted successfully", "inserted_id": str(result.inserted_id)}), 201
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+# add in db ----------------------------------------------------------------------------------------------------
+
+# get data in db ----------------------------------------------------------------------------------------------------
+from bson.json_util import dumps
+@app.route("/getusers_mongo", methods=["GET"])
+def get_users_mongo():
+    try:
+        # Retrieve all documents from the collection
+        documents = collection.find()
+
+        # Convert documents to a JSON string
+        documents_list = list(documents)
+        json_docs = dumps(documents_list)
+
+        # Return JSON response
+        return json_docs, 200, {'Content-Type': 'application/json'}
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+# get data in db ----------------------------------------------------------------------------------------------------
 
 # Serve static files from the 'static' folder
 @app.route("/static/<path:filename>", methods=["GET"])
