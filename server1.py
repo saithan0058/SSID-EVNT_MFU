@@ -9,6 +9,7 @@ from flask import (
     url_for,
     jsonify,
 )
+from bson.objectid import ObjectId
 import datetime
 from netmiko import ConnectHandler
 import re
@@ -19,7 +20,7 @@ from pymongo import MongoClient
 import os
 import csv
 from ldap3 import Server, Connection, ALL, MODIFY_REPLACE, NTLM, SUBTREE, MODIFY_ADD
-
+import paramiko
 
 current_time = datetime.datetime.now()
 logging.basicConfig(level=logging.DEBUG)  # เพิ่มการตั้งค่าการล็อกเพื่อดูข้อผิดพลาด
@@ -35,6 +36,10 @@ formatted_time = buddhist_time.strftime("%Y-%m-%d %H:%M:%S")
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"  # Set a secret key for session management
+
+
+
+
 
 # Mock database or user credentials (for demonstration)
 USER_CREDENTIALS = [{"username": "admin", "password": "admin"}]
@@ -127,6 +132,48 @@ def individual():
 #     with open("tester.html", "r", encoding="utf-8") as file:
 #         return file.read()
 
+# get policy_tag_names ----------------------------------------------------------------------------------------------------
+# Replace these with your WLC details
+hostname = '172.30.99.56'
+port = 22
+username = 'admins'
+password = 'admins'
+
+def fetch_policy_tag_names():
+    try:
+        # Create SSH client
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+        # Connect to WLC
+        ssh.connect(hostname, port, username, password)
+
+        # Execute the command to get policy tags
+        stdin, stdout, stderr = ssh.exec_command('show wireless tag policy summary')
+        output = stdout.read().decode()
+        ssh.close()
+
+        # Parse the output to get policy tag names
+        lines = output.split('\n')
+        policy_tag_names = []
+        for line in lines:
+            if 'Number' in line or '------------------------------------------------------------------------' in line:
+                continue
+            columns = line.split()
+            if columns and 'Policy Tag Name' not in line:
+                policy_tag_names.append(columns[0])
+
+        return policy_tag_names
+
+    except Exception as e:
+        return str(e)
+
+# Route to fetch policy tag names as JSON
+@app.route("/getpolicy_tag_names", methods=["GET"])
+def get_policy_tag_names():
+    policy_tag_names = fetch_policy_tag_names()
+    return jsonify(policy_tag_names=policy_tag_names)
+# get policy_tag_names ----------------------------------------------------------------------------------------------------
 
 @app.route("/testtest", methods=["GET"])
 def testtest():
@@ -161,20 +208,27 @@ def history():
     return render_template("/history.html", documents=documents)
 
 
-
-@app.route("/configure_ssid1", methods=["POST"])  # ไม่มีรหัสผ่าน
+@app.route('/configure_ssid1', methods=['POST']) #ไม่มีรหัสผ่าน
 def configure_ssid1():
-    ssid1 = request.form["ssid1"]
-    event1 = request.form["event1"]
-    location1 = request.form["location1"]
-    post(ssid1, event1, location1)
+    ssid1 = request.form['ssid1']
+    event1 = request.form['event1']
+    location1 = request.form['location1']
+    ouGroup = '-'
+    users ='-'
+    dateRange = data.get('dateRange')  # ดึงค่าวันที่จากคำขอ
+    
+    if dateRange:
+        start_date, end_date = dateRange.split(' - ')
+        print(f"Start Date: {start_date}, End Date: {end_date}")
+
+    post(ssid1, event1, location1, ouGroup, users)
 
     device = {
-        "device_type": "cisco_ios",
-        "ip": "172.30.99.56",
-        "username": "admin",
-        "password": "CITS@WLC2023",
-        "secret": "CITS@WLC2023",
+        'device_type': 'cisco_ios',
+        'ip': '172.30.99.56',
+        'username': 'admin',
+        'password': 'CITS@WLC2023',
+        'secret': 'CITS@WLC2023',
     }
 
     # Connect to the Cisco device
@@ -182,31 +236,33 @@ def configure_ssid1():
     oo = net_connect.enable()
     # Send the command
     print(oo)
-
+    
     output = net_connect.send_command("show wlan summary")
-
+    
     wlan_ids = []
     lines = output.splitlines()
     print(lines)
     for line in lines[5:]:
         if line.strip():
-            match = re.match(r"^\s*(\d+)", line)
+            match = re.match(r'^\s*(\d+)', line)
             if match:
                 wlan_id = match.group(1)
                 wlan_ids.append(wlan_id)
-
+    
     # Print the WLAN IDs
     for wlan_id in wlan_ids:
         print(wlan_id)
-
+    
     existing_array = [None] * 15
+
+    # Your code to retrieve WLAN IDs and store them in wlan_ids list
 
     # Add the values from wlan_ids to the existing array
     for i in range(len(wlan_ids)):
         existing_array[i] = wlan_ids[i]
 
     # Print the updated array
-    print(existing_array)
+    print(existing_array) 
 
     next_position = existing_array.index(None)
 
@@ -221,13 +277,13 @@ def configure_ssid1():
     existing_array[next_position] = str(random_num)
 
     config_commands = [
-        f"wlan {ssid1} {random_num} {ssid1}",
-        f"no security wpa",
-        f"no shutdown",
-        f"exit",
-        f"wireless tag policy {location1}",
-        f"wlan {ssid1} policy MFUPolicyProfile1",
-        f"end",
+        f'wlan {ssid1} {random_num} {ssid1}',
+        f'no security wpa',
+        f'no shutdown',
+        f'exit',
+        f'wireless tag policy {location1}',
+        f'wlan {ssid1} policy MFUPolicyProfile1',
+        f'end',
     ]
 
     output = net_connect.send_config_set(config_commands)
@@ -236,8 +292,9 @@ def configure_ssid1():
     # Disconnect from the Cisco device
     net_connect.disconnect()
 
-    return redirect(url_for("history"))
-    
+    return redirect(url_for('history'))
+
+
 @app.route("/configure_ssid", methods=["POST"])  # รหัสผ่านร่วมกัน
 def configure_ssid():
     try:
@@ -245,8 +302,18 @@ def configure_ssid():
         password = request.form["password"]
         event = request.form["event"]
         location = request.form["location"]
-        logging.debug(f"Received data - SSID: {ssid}, Event: {event}, Location: {location}")
-
+        ouGroup = '-'
+        users ='-'
+        dateRange = data.get('dateRange')  # ดึงค่าวันที่จากคำขอ
+       
+       
+        if dateRange:
+            start_date, end_date = dateRange.split(' - ')
+            print(f"Start Date: {start_date}, End Date: {end_date}")
+       
+       
+       
+        post(ssid, event, location, ouGroup, users)
         device = {
             "device_type": "cisco_ios",
             "ip": "172.30.99.56",
@@ -355,6 +422,7 @@ def handle_data():
 
 @app.route('/configure_ssid2', methods=['POST']) #AAA
 def configure_ssid2():
+
     data = request.get_json()
 
     # Extract specific parts of the data
@@ -365,12 +433,20 @@ def configure_ssid2():
     users = data.get('users', [])
     dateRange = data.get('dateRange')  # ดึงค่าวันที่จากคำขอ
 
-    # Optional: จัดการกับค่าวันที่ ถ้าจำเป็น
     if dateRange:
         start_date, end_date = dateRange.split(' - ')
         print(f"Start Date: {start_date}, End Date: {end_date}")
 
+    # ssid2 = request.form['ssid2']
+    # event2 = request.form['event2']
+    # location2 = request.form['location2']
+    # ouGroup =request.form['ouGroup']
+
+    # users = request.get_json()
+    # if not isinstance(users, list):
+    #     return jsonify({"error": "JSON data must be a list of user objects"}), 400
     post(ssid2, event2, location2, ouGroup, users)
+   
 
     device = {
         'device_type': 'cisco_ios',
@@ -404,6 +480,8 @@ def configure_ssid2():
     
     existing_array = [None] * 15
 
+    # Your code to retrieve WLAN IDs and store them in wlan_ids list
+
     # Add the values from wlan_ids to the existing array
     for i in range(len(wlan_ids)):
         existing_array[i] = wlan_ids[i]
@@ -425,15 +503,15 @@ def configure_ssid2():
 
     config_commands = [
         f'wlan {ssid2} {random_num} {ssid2}',
-        'no security ft adaptive',
-        'security dot1x authentication-list list',
-        'security ft',
-        'security wpa akm ft dot1x',
-        'no shutdown',
-        'exit',
+        f'no security ft adaptive',
+        f'security dot1x authentication-list list',
+        f'security ft',
+        f'security wpa akm ft dot1x',
+        f'no shutdown',
+        f'exit',
         f'wireless tag policy {location2}',
         f'wlan {ssid2} policy MFUPolicyProfile1',
-        'end',
+        f'end',
     ]
 
     output = net_connect.send_config_set(config_commands)
@@ -446,8 +524,7 @@ def configure_ssid2():
 
 
 
-
-def post(ssid, event, location):
+def post(ssid, event, location, ouGroup, users):
     
     current_time = datetime.datetime.now()
 
@@ -473,7 +550,9 @@ def post(ssid, event, location):
         'event': event,
         'location': location,              
         'time': formatted_time,
-        
+        'ouGroup':ouGroup,
+        'status':'run on',
+        'users':users,
     }
 
     # Insert the document into the collection
@@ -482,7 +561,7 @@ def post(ssid, event, location):
     # Close the MongoDB connection
     client.close()
 
-def post(ssid1, event1, location1):
+def post(ssid1, event1, location1, ouGroup, users):
     
     
     current_time = datetime.datetime.now()
@@ -508,8 +587,11 @@ def post(ssid1, event1, location1):
     document = {
         'ssid' : ssid1,
         'event': event1,
-        'location': location1,         
-        'time': formatted_time
+        'location': location1,          
+        'time': formatted_time,
+        'ouGroup':ouGroup,
+        'status':'run on',
+        'users':users,
     }
 
     # Insert the document into the collection
@@ -547,6 +629,7 @@ def post(ssid2, event2, location2, ouGroup, users):
         'location': location2,          
         'time': formatted_time,
         'ouGroup':ouGroup,
+        'status':'run on',
         'users':users,
 
     }
@@ -1090,6 +1173,23 @@ def get_users_mongo():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 # get data in db ----------------------------------------------------------------------------------------------------
+# get getusers_mongo in db ----------------------------------------------------------------------------------------------------
+@app.route("/getdetail_mongo/<_id>", methods=["GET"])
+def get_detail_mongo(_id):
+    try:
+        # Convert string _id to ObjectId
+        document = collection.find_one({"_id": ObjectId(_id)})
+
+        if document:
+            # Convert document to a JSON string
+            json_doc = dumps(document)
+            return json_doc, 200, {'Content-Type': 'application/json'}
+        else:
+            return jsonify({"error": "Document not found"}), 404
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+# get getusers_mongo in db ----------------------------------------------------------------------------------------------------
 
 # Serve static files from the 'static' folder
 @app.route("/static/<path:filename>", methods=["GET"])

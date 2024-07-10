@@ -688,9 +688,3 @@ h3 {
   transition: transform 0.5s ease; /* เพิ่ม transition นี้ */
 }
 
-
-.daterangepicker {
-  top: 50% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) !important;
-}

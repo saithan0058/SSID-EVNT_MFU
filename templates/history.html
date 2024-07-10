@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" />
   <link rel="stylesheet" href="/static/css/cssmfu.css" />
   <link rel="stylesheet" href="/static/css/dropdown-menu.css" />
+  <link rel="stylesheet" href="/static/css/background.css" />
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
@@ -31,27 +32,14 @@
 
 </head>
 <style>
-  body,
-  html {
-    height: 100%;
-    font-family: Arial, sans-serif;
-  }
-
-  .content-container {
-    padding: 20px;
-  }
-
-  .table-striped tbody tr:nth-of-type(odd) {
-    background-color: rgba(0, 0, 0, 0.05);
-
-  }
-
-  .content-container {
-    padding: 20px;
-  }
-
-  .table-striped tbody tr:nth-of-type(odd) {
-    background-color: rgba(0, 0, 0, .05);
+   
+  .fixed-content {
+    position: sticky;
+    top: 10px;
+    /* Adjust as needed */
+    /* Optional: Background color */
+    padding: 10px;
+    /* Optional: Padding */
   }
 </style>
 
@@ -70,15 +58,45 @@
                 <th>EVENT</th>
                 <th>LOCATION</th>
                 <th>GOU</th>
+                <th>STATUS</th>
                 <th>DETAILS</th>
               </tr>
             </thead>
             <tbody class="" id="tbody_data">
-
+              
             </tbody>
           </table>
         </div>
 
+        <!-- Modal -->
+        <div class="modal fade" id="userModal" tabindex="-1" role="dialog" aria-labelledby="userModalLabel"
+          aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <div class="fixed-content" id="headcontent">
+                  
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+                <!-- Fixed Content Section -->
+
+                <!-- Scrollable Content Section -->
+                <div>
+                  <ul class="list-group list-group-flush" id="userList">
+                  </ul>
+                  <!-- Add more content if needed -->
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
