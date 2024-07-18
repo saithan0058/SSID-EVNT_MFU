@@ -1,207 +1,568 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <title>WI-FI System</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+    />
     <link rel="stylesheet" href="/static/css/cssmfu.css" />
     <link rel="stylesheet" href="/static/css/dropdown-menu.css" />
-    <link rel="stylesheet" href="/static/css/background.css">
-
-
+    <link rel="stylesheet" href="/static/css/background.css" />
+    <link rel="stylesheet" href="/static/css/individual.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"
+    />
   </head>
+
   <body style="background-image: url(/static/images/mfubg_fill.png)">
     {% include 'navbar.html' %}
     <div class="content-container mt-4">
-        <div class="card">
-            <div class="card-header text-center">
-                <h4>individual</h4>
-            </div>
-            <div class="card-body">
-                <form id="ssidForm2" enctype="multipart/form-data" onsubmit="event.preventDefault();">
-                    <div class="row d-flex justify-content-center">
-                        <div class="col-md-6">
-                            <input type="text" class="form-control mb-2" id="ssid2" placeholder="Please specify SSID name.">
-                            <input type="text" class="form-control mb-2" id="event2" placeholder="Please specify the name of the activity.">
-                            <select id="location2" class="form-select mb-2">
-                                <option value="" selected disabled>Select location</option>
-                                <option value="AS">AS</option>
-                                <option value="ap2">AP2</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="file-upload-container mb-3">
-                                <input type="file" id="csvFile" name="csvFile" accept=".csv" class="form-control">
-                            </div>
-                            <div class="user-list" id="userList" style="overflow-y: auto; max-height: 200px;">
-                                <!-- This div will contain the user list -->
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="card-footer">
-                <button type="button" onclick="configureSSID2()" class="next-btn">Next</button>
-            </div>
+      <div class="card">
+        <div class="card-header text-center">
+          <h4>individual</h4>
         </div>
+        <div class="card-body">
+          <form id="ssidForm2" enctype="multipart/form-data">
+            <div class="row d-flex justify-content-center">
+              <div class="col-md-6">
+                <input
+                  type="text"
+                  class="form-control mb-2"
+                  id="ssid2"
+                  name="ssid2"
+                  placeholder="Please specify SSID name."
+                  required
+                />
+                <div class="invalid-feedback">
+                  Please provide a valid SSID name.
+                </div>
+                <input
+                  type="text"
+                  class="form-control mb-2"
+                  id="event2"
+                  name="event2"
+                  placeholder="Please specify the name of the activity."
+                  required
+                />
+                <div class="invalid-feedback">
+                  Please specify the name of the activity.
+                </div>
+                <select
+                  id="location2"
+                  name="location2"
+                  class="form-select mb-2"
+                  required
+                >
+                  <option value="" selected disabled>Select location</option>
+                </select>
+                <div class="invalid-feedback">Please select a location.</div>
+                <select
+                  id="ouGroup"
+                  name="ouGroup"
+                  class="form-select mb-2"
+                  required
+                >
+                  <option value="" selected disabled>
+                    Select OUS (for creating users in AD)
+                  </option>
+                </select>
+                <div class="invalid-feedback">Please select an OU group.</div>
+
+                <input
+                  type="text"
+                  class="form-control"
+                  id="dateRange"
+                  placeholder="Select Date(s)"
+                />
+
+                <div class="invalid-feedback">Please select date.</div>
+              </div>
+              <div class="col-md-6">
+                <div class="file-upload-container mb-3">
+                  <input
+                    type="file"
+                    id="csvFile"
+                    name="users"
+                    accept=".csv"
+                    class="form-control"
+                    required
+                  />
+                  <div class="invalid-feedback">Please upload a CSV file.</div>
+                </div>
+                <div
+                  class="user-list"
+                  id="userList"
+                  style="overflow-y: auto; max-height: 200px"
+                >
+                  <!-- This div will contain the user list -->
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="card-footer">
+          <button type="button" class="next-btn" onclick="getDetails()">
+            Next
+          </button>
+        </div>
+      </div>
     </div>
-
-
 
     <!-- เรียกใช้navbar -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment/min/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script>
+      idcardCheck();
       let users = [];
+      let Alluseridcrad = [];
 
-      document.getElementById('csvFile').addEventListener('change', function (event) {
+      let sameNum = "notsame";
+      // Define variables to store start and end dates
+      let startDate = "";
+      let endDate = "";
+      let selectedDateRange = "";
+
+      document
+        .getElementById("csvFile")
+        .addEventListener("change", function (event) {
           const file = event.target.files[0];
           loadUserList(file);
+        });
+
+      $(document).ready(function () {
+        $("#dateRange").daterangepicker({
+          autoUpdateInput: false,
+          locale: {
+            cancelLabel: "Clear",
+            format: "MM/DD/YYYY",
+          },
+        });
+
+        // Update variables on date range apply
+        $("#dateRange").on("apply.daterangepicker", function (ev, picker) {
+          startDate = picker.startDate.format("YYYY-MM-DD HH:mm:ss");
+          endDate = picker.endDate.format("YYYY-MM-DD 22:00:00");
+          selectedDateRange = startDate + " - " + endDate;
+          $(this).val(selectedDateRange);
+
+          // // Log the selected date range
+          // console.log('Start Date:', startDate);
+          // console.log('End Date:', endDate);
+          // console.log('Selected Date Range:', selectedDateRange);
+        });
+
+        // Clear variables on date range cancel
+        $("#dateRange").on("cancel.daterangepicker", function (ev, picker) {
+          startDate = "";
+          endDate = "";
+          selectedDateRange = "";
+          $(this).val("");
+        });
       });
 
       function loadUserList(file) {
-          if (file) {
-              const reader = new FileReader();
-              reader.onload = function (e) {
-                  const content = e.target.result;
-                  const lines = content.split('\n').filter(line => line.trim());
-                  users = lines.slice(1).map((line, index) => {
-                      const [idCard, name, phone, email] = line.split(',');
-                      return { index, idCard, name, phone, email };
-                  });
-                  displayUsers();
-              };
-              reader.readAsText(file);
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const content = e.target.result;
+            const lines = content.split("\n").filter((line) => line.trim());
+            users = lines.slice(1).map((line, index) => {
+              const [idcard, name, phone, email] = line.split(",");
+              return { index, idcard, name, phone, email };
+            });
+            displayUsers();
+            // convertToJson();
+          };
+          reader.readAsText(file);
+        }
+      }
+      async function idcardCheck() {
+        try {
+          const response = await fetch("/get_allusers");
+          if (!response.ok) {
+            throw new Error("Failed to fetch data");
           }
+          const data = await response.json();
+          Alluseridcrad = data.users.map((user) => user);
+
+          return Alluseridcrad; // If you want to use it outside this function
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      }
+      async function idcardCheck() {
+        try {
+          const response = await fetch("/get_allusers");
+          if (!response.ok) {
+            throw new Error("Failed to fetch data");
+          }
+          const data = await response.json();
+          Alluseridcrad = data.users.map((user) => user);
+
+          return Alluseridcrad; // If you want to use it outside this function
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      }
+      async function idcardCheck() {
+        try {
+          const response = await fetch("/get_allusers");
+          if (!response.ok) {
+            throw new Error("Failed to fetch data");
+          }
+          const data = await response.json();
+          Alluseridcrad = data.users.map((user) => user);
+
+          return Alluseridcrad; // If you want to use it outside this function
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      }
+      async function idcardCheck() {
+        try {
+          const response = await fetch("/get_allusers");
+          if (!response.ok) {
+            throw new Error("Failed to fetch data");
+          }
+          const data = await response.json();
+          Alluseridcrad = data.users.map((user) => user);
+
+          return Alluseridcrad; // If you want to use it outside this function
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      }
+      async function getDetails() {
+        const inputValue = document.getElementById("ssid2").value.trim();
+        try {
+          const response = await fetch("/getusers_mongo");
+          if (!response.ok) {
+            throw new Error("Failed to fetch data");
+          }
+          const data = await response.json();
+          // console.log(data);
+          const ssIDname = data.map((user) => user.ssid);
+          // console.log(ssIDname);
+          if (users.length == 0) {
+            // console.log('no users ');
+            Swal.fire({
+              heightAuto: false,
+              icon: "error",
+              title: "No user",
+              text: "Check users",
+            });
+          } else {
+            users.forEach((user) => {
+              if (Alluseridcrad.includes(user["idcard"])) {
+                sameNum = "same";
+              } else {
+                sameNum = "notsame";
+              }
+            });
+            if (sameNum == "same" || ssIDname.includes(inputValue)) {
+              Swal.fire({
+                heightAuto: false,
+                icon: "error",
+                title: "ID Card or SSID Name",
+                text: "Check ID Card and SSID Name",
+              });
+            } else {
+              //function
+              configureSSID2();
+              // console.log(endDate + selectedDateRange);
+            }
+          }
+
+          // console.log(sameNum);
+          return ssIDname; // If you want to use it outside this function
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
       }
 
       function displayUsers() {
-          let userList = '<ul class="list-group">';
-          users.forEach(user => {
-              userList += `
+        let userList = '<ul class="list-group">';
+        // console.log(users);
+        users.forEach((user) => {
+          userList += `
                   <li class="list-group-item d-flex justify-content-between align-items-start" id="user-${user.index}">
                       <div class="ms-2 me-auto">
                           <div class="fw-bold">Name: <span contenteditable="false" id="name-${user.index}">${user.name}</span></div>
-                          ID Card: <span contenteditable="false" id="id_card-${user.index}">${user.idCard}</span><br>
+                          ID Card: <span contenteditable="false" id="id_card-${user.index}">${user.idcard}</span><br>
                           Phone: <span contenteditable="false" id="phone-${user.index}">${user.phone}</span><br>
                           Email: <span contenteditable="false" id="email-${user.index}">${user.email}</span>
                       </div>
                       <span>
-                          <button class="btn btn-warning btn-sm me-2" onclick="editUser(${user.index})">แก้ไข</button>
-                          <button class="btn btn-danger btn-sm" onclick="deleteUser(${user.index})">ลบ</button>
+                        <button type="button" class="btn btn-warning btn-sm me-2" onclick="editUser(${user.index})">แก้ไข</button>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="deleteUser(${user.index})">ลบ</button>
                       </span>
                   </li>`;
-          });
-          userList += '</ul>';
-          document.getElementById('userList').innerHTML = userList;
+        });
+        userList += "</ul>";
+        document.getElementById("userList").innerHTML = userList;
       }
 
       function editUser(index) {
-          const editButton = document.querySelector(`#user-${index} .btn-warning`);
-          const cancelButton = document.querySelector(`#user-${index} .btn-danger`);
+        const editButton = document.querySelector(
+          `#user-${index} .btn-warning`
+        );
+        const cancelButton = document.querySelector(
+          `#user-${index} .btn-danger`
+        );
 
-          if (editButton.textContent === "แก้ไข") {
-              editButton.textContent = "ตกลง";
-              editButton.classList.remove('btn-warning');
-              editButton.classList.add('btn-success');
-              cancelButton.textContent = "ยกเลิก";
-              cancelButton.classList.remove('btn-danger');
-              cancelButton.classList.add('btn-secondary');
-
-              const idCardSpan = document.getElementById(`id_card-${index}`);
-              const nameSpan = document.getElementById(`name-${index}`);
-              const phoneSpan = document.getElementById(`phone-${index}`);
-              const emailSpan = document.getElementById(`email-${index}`);
-              [idCardSpan, nameSpan, phoneSpan, emailSpan].forEach(span => {
-                  span.contentEditable = true;
-                  span.classList.add("editable");
-              });
-
-              editButton.onclick = function () {
-                  saveChanges(index);
-              };
-
-              cancelButton.onclick = function () {
-                  revertUser(index);
-              };
-          } else {
-              saveChanges(index);
-          }
-      }
-
-      function saveChanges(index) {
-          const user = users.find(user => user.index === index);
-          if (user) {
-              const idCardSpan = document.getElementById(`id_card-${index}`);
-              const nameSpan = document.getElementById(`name-${index}`);
-              const phoneSpan = document.getElementById(`phone-${index}`);
-              const emailSpan = document.getElementById(`email-${index}`);
-
-              user.idCard = idCardSpan.textContent;
-              user.name = nameSpan.textContent;
-              user.phone = phoneSpan.textContent;
-              user.email = emailSpan.textContent;
-
-              revertUser(index);
-              displayUsers();
-          }
-      }
-
-      function revertUser(index) {
-          const editButton = document.querySelector(`#user-${index} .btn-success`);
-          const cancelButton = document.querySelector(`#user-${index} .btn-secondary`);
-
-          editButton.textContent = "แก้ไข";
-          editButton.classList.remove('btn-success');
-          editButton.classList.add('btn-warning');
-          cancelButton.textContent = "ลบ";
-          cancelButton.classList.remove('btn-secondary');
-          cancelButton.classList.add('btn-danger');
+        if (editButton.textContent === "แก้ไข") {
+          editButton.textContent = "ตกลง";
+          editButton.classList.remove("btn-warning");
+          editButton.classList.add("btn-success");
+          cancelButton.textContent = "ยกเลิก";
+          cancelButton.classList.remove("btn-danger");
+          cancelButton.classList.add("btn-secondary");
 
           const idCardSpan = document.getElementById(`id_card-${index}`);
           const nameSpan = document.getElementById(`name-${index}`);
           const phoneSpan = document.getElementById(`phone-${index}`);
           const emailSpan = document.getElementById(`email-${index}`);
-          [idCardSpan, nameSpan, phoneSpan, emailSpan].forEach(span => {
-              span.contentEditable = false;
-              span.classList.remove("editable");
+          [idCardSpan, nameSpan, phoneSpan, emailSpan].forEach((span) => {
+            span.contentEditable = true;
+            span.classList.add("editable");
           });
 
           editButton.onclick = function () {
-              editUser(index);
+            saveChanges(index);
           };
 
           cancelButton.onclick = function () {
-              deleteUser(index);
+            revertUser(index);
           };
+        } else {
+          saveChanges(index);
+        }
+      }
+
+      function saveChanges(index) {
+        const user = users.find((user) => user.index === index);
+        if (user) {
+          const idCardSpan = document.getElementById(`id_card-${index}`);
+          const nameSpan = document.getElementById(`name-${index}`);
+          const phoneSpan = document.getElementById(`phone-${index}`);
+          const emailSpan = document.getElementById(`email-${index}`);
+
+          user.idcard = idCardSpan.textContent;
+          user.name = nameSpan.textContent;
+          user.phone = phoneSpan.textContent;
+          user.email = emailSpan.textContent;
+
+          const updatedUser = {
+            index: user.index,
+            idcard: user.idCard,
+            name: user.name,
+            phone: user.phone,
+            email: user.email,
+          };
+
+          revertUser(index);
+        }
+      }
+
+      function revertUser(index) {
+        const editButton = document.querySelector(
+          `#user-${index} .btn-success`
+        );
+        const cancelButton = document.querySelector(
+          `#user-${index} .btn-secondary`
+        );
+
+        editButton.textContent = "แก้ไข";
+        editButton.classList.remove("btn-success");
+        editButton.classList.add("btn-warning");
+        cancelButton.textContent = "ลบ";
+        cancelButton.classList.remove("btn-secondary");
+        cancelButton.classList.add("btn-danger");
+
+        const idCardSpan = document.getElementById(`id_card-${index}`);
+        const nameSpan = document.getElementById(`name-${index}`);
+        const phoneSpan = document.getElementById(`phone-${index}`);
+        const emailSpan = document.getElementById(`email-${index}`);
+        [idCardSpan, nameSpan, phoneSpan, emailSpan].forEach((span) => {
+          span.contentEditable = false;
+          span.classList.remove("editable");
+        });
+
+        editButton.onclick = function () {
+          editUser(index);
+        };
+
+        cancelButton.onclick = function () {
+          deleteUser(index);
+        };
       }
 
       function deleteUser(index) {
-          users = users.filter(user => user.index !== index);
-          displayUsers();
+        const user = users.find((user) => user.index === index);
+        users = users.filter((user) => user.index !== index);
+        displayUsers();
       }
 
+      async function ouselection() {
+        //เช็คว่าในouไหนบ้างที่ไม่มีuserและสร้างอันที่ไม่มีคนมาให้เลือก
+        try {
+          const response = await fetch("/getOUcheck");
+          if (!response.ok) {
+            throw new Error("Failed to fetch data");
+          }
+          const data = await response.json();
+          // console.log(data);
+
+          let optionselecter =
+            '<option value="" selected disabled>Select OUS (สำหรับสร้างusersในAD)</option>';
+          data.forEach(function (OUoption) {
+            optionselecter += `
+                <option name="${OUoption}" value="${OUoption}">${OUoption}</option>
+            `;
+          });
+          document.getElementById("ouGroup").innerHTML = optionselecter;
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      }
+      async function locationSelect() {
+        //สร้างชื่อplc tag
+        try {
+          const response = await fetch("/getpolicy_tag_names");
+          if (!response.ok) {
+            throw new Error("Failed to fetch data");
+          }
+          const data = await response.json();
+          // console.log(data);
+
+          let optionselecter =
+            '<option value="" selected disabled>Select location</option>';
+          data.policy_tag_names.forEach(function (OUoption) {
+            optionselecter += `
+                <option name="${OUoption}" value="${OUoption}">${OUoption}</option>
+            `;
+          });
+          document.getElementById("location2").innerHTML = optionselecter;
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      }
+
+      function submitForm() {
+        //เพิ่มชื่อลงในad
+        const adduserURL = "/add_userjson/";
+        const OU_selected = document.getElementById("ouGroup").value;
+        try {
+          fetch(adduserURL + OU_selected, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(users),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              // console.log('Success:', data);
+              // Optionally display success message or handle response
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              // Optionally display error message or handle error
+            });
+        } catch (err) {
+          console.error(err);
+          alert(err.message);
+        }
+      }
 
       function configureSSID2() {
-  const formData = new FormData(document.getElementById('ssidForm2'));
-  const xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
-      if (this.readyState == 4 && this.status == 200) {
-          // Handle response here
-          alert("SSID configuration successful!");
-          window.location.href = "/history";
-      }
-  };
-  xhttp.open("POST", "/configure_ssid2", true);
-  xhttp.send(formData);
-}
+        // formData.append('dateRange', selectedDateRange); // ส่งค่าวันที่ไปด้วย
 
-  </script>
+        const form = document.getElementById("ssidForm2");
+        if (!form.checkValidity()) {
+          // Add the 'was-validated' class to trigger validation styles
+          form.classList.add("was-validated");
+
+          // Show the invalid feedback for each invalid field
+          Array.from(form.elements).forEach((element) => {
+            if (!element.checkValidity()) {
+              element.classList.add("is-invalid");
+            }
+          });
+
+          return;
+        }
+        // Create a SweetAlert confirmation dialog
+        Swal.fire({
+          heightAuto: false,
+          title: "Are you sure?",
+          text: "Do you want to configure the SSID with the provided details?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes, configure it!",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // If user confirms, proceed with configuration
+            let form = new FormData(document.getElementById("ssidForm2"));
+            var object = {};
+            form.forEach(function (value, key) {
+              object[key] = value;
+            });
+            object["users"] = users;
+            object["endDate"] = endDate; // Add endDate
+            object["selectedDateRange"] = selectedDateRange; // Add selectedDateRange
+            var json = JSON.stringify(object);
+            // console.log(json);
+
+            // Perform AJAX request to configure SSID
+            const xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+              if (this.readyState == 4 && this.status == 200) {
+                submitForm();
+                window.location.href = "/wlantemplate";
+                Swal.fire({
+                  heightAuto: false,
+                  title: "Configured!",
+                  text: "SSID configuration successful!",
+                  icon: "success",
+                  timer: 2000,
+                  timerProgressBar: true,
+                  showConfirmButton: false,
+                }).then(() => {});
+              }
+            };
+            xhttp.open("POST", "http://localhost:3000/configure_ssid2", true);
+            xhttp.setRequestHeader(
+              "Content-Type",
+              "application/json;charset=UTF-8"
+            );
+            xhttp.send(json);
+          }
+        });
+      }
+
+      ouselection();
+      locationSelect();
+    </script>
   </body>
 </html>

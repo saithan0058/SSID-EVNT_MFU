@@ -8,7 +8,7 @@ def delete_all_users():
     try:
         # Connect to LDAP server
         server = Server(server_address, connect_timeout=5, use_ssl=True, get_info=ALL)
-        conn = Connection(server, user=f"{domain}\\{loginun}", password=loginpw, authentication=NTLM, auto_bind=True)
+        conn = Connection(server, user=f"{domain}\\{loginun}", password=loginun, authentication=NTLM, auto_bind=True)
         
         # Search for all users
         conn.search(
