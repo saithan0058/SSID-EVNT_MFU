@@ -24,7 +24,6 @@ import csv
 from ldap3 import Server, Connection, ALL, MODIFY_REPLACE, NTLM, SUBTREE, MODIFY_ADD
 import paramiko
 
-
 current_time = datetime.datetime.now()
 logging.basicConfig(level=logging.DEBUG)  # เพิ่มการตั้งค่าการล็อกเพื่อดูข้อผิดพลาด
 

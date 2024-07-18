@@ -106,6 +106,16 @@
     <!-- Your custom JavaScript file -->
   <script src="/static/js/homehistory.js"></script>
 
+    document.getElementById('logout-link').addEventListener('mouseover', function (e) {
+      const maxDistance = 300; // สามารถปรับตำแหน่งได้สูงสุด 100px จากตำแหน่งเดิม
+      // สร้างค่าสุ่มสำหรับแกน y
+      let randomY = Math.random() * maxDistance;
+      // สร้างค่าสุ่มสำหรับแกน x แต่ให้เป็นค่าลบเพื่อไม่ให้ขยับไปทางขวา
+      let randomX = Math.random() * -maxDistance;
+      this.style.transform = `translate(${randomX}px, ${randomY}px)`;
+    });
+  </script>
+</body>
 
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
